@@ -1,0 +1,742 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"> 
+<head> 
+	<title>Baltimore Homicides - baltimoresun.com</title>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/> 
+	
+	<link rel="stylesheet" type="text/css" href="/homicides/css/reset.css" media="all" />
+	<link rel="stylesheet" type="text/css" href="http://data.baltimoresun.com/bing-maps/homicides/css/public.css?nocache" media="all" />
+	
+	<link rel="alternate" type="application/rss+xml" title="Baltimore Homicides - baltimoresun.com" href="http://data.baltimoresun.com/bing-maps/homicides/feed/" />
+	
+	<script language="JavaScript">
+		<!--
+		function na_open_window(name, url, left, top, width, height, toolbar, menubar, statusbar, scrollbar, resizable) {
+			toolbar_str = toolbar ? 'yes' : 'no';
+			menubar_str = menubar ? 'yes' : 'no';
+			statusbar_str = statusbar ? 'yes' : 'no';
+			scrollbar_str = scrollbar ? 'yes' : 'no';
+			resizable_str = resizable ? 'yes' : 'no';
+			window.open(url, name, 'left='+left+',top='+top+',width='+width+',height='+height+',toolbar='+toolbar_str+',menubar='+menubar_str+',status='+statusbar_str+',scrollbars='+scrollbar_str+',resizable='+resizable_str);
+		}
+		// -->
+	</script>
+	
+	<!-- bing scripts -->
+		<script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
+		<!--<script src="http://cdn.jquerytools.org/1.1.2/jquery.tools.min.js"></script>-->
+		<script src="http://extras.baltimoresun.com/js/legacy-js-for-homicides-slider/flowplayer.org-1.1.2-jquery.tools.min.js"></script>
+		<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.min.js"></script>
+	
+	
+	<script type="text/javascript">
+
+
+		//<![CDATA[
+		
+		var map;
+		var infoboxLayer;
+		var defaultcursor;
+		
+				var icon_homicide_asphyxiation;
+				var icon_homicide_bluntforce;
+				var icon_homicide_other;
+				var icon_homicide_shooting;
+				var icon_homicide_stabbing;
+				var icon_homicide_unknown;
+				
+		var newpoints = new Array();
+
+
+		function addLoadEvent(func) { 
+			var oldonload = window.onload; 
+			if (typeof window.onload != 'function'){ 
+				window.onload = func
+			} else { 
+				window.onload = function() {
+					oldonload();
+					func();
+				}
+			}
+		}
+ 
+		addLoadEvent(loadMap);
+			
+		function loadMap() {
+
+			map = new Microsoft.Maps.Map(document.getElementById('map'), {
+				credentials: 'Aqu4JoJ71xsWd6qRLXqz2zdNXl2UWcXR2dfKiDWCJ88dKENk7zu5ob-D02HHv5t_',
+				center: new Microsoft.Maps.Location(39.2891399125, -76.6165924072),
+				zoom: 12,
+				width: 962,
+                height: 600
+			});
+			Microsoft.Maps.Events.addHandler(map, 'viewchangeend', function (e) { onViewChangeEnd(e); });
+
+			defaultcursor = map.getRootElement().style.cursor;
+			Microsoft.Maps.Events.addHandler(map, "mousemove", function (e) {
+			  var mapElem = map.getRootElement();
+			  if (e.targetType === "map") {
+				mapElem.style.cursor = defaultcursor;
+			  } else {
+				mapElem.style.cursor = "pointer";
+			  }
+			});
+
+			pinLayer = new Microsoft.Maps.EntityCollection();
+			map.entities.push(pinLayer);
+
+			infoboxLayer = new Microsoft.Maps.EntityCollection();
+			map.entities.push(infoboxLayer);
+			
+							icon_homicide_asphyxiation = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_blue.png";
+							icon_homicide_bluntforce = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_green.png";
+							icon_homicide_other = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png";
+							icon_homicide_shooting = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_red.png";
+							icon_homicide_stabbing = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_black.png";
+							icon_homicide_unknown = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png";
+						
+			
+						newpoints[0] = new Array(39.28632080555, -76.59687750042, icon_homicide_shooting, 'p1747', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1747/tsambikos-diakoloukas">Tsambikos Diakoloukas</a></dt><dd class="address">400 S Caroline St<br />Baltimore, MD 21231</dd><dd>Race: White<br />Gender: male<br />Age: 79 years old</dd><dd>Found on February  5, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Diakoloukas was shot on Aug. 17, 1982 in a robbery of his cleaning store, and suffered traumatic brain injuries. He...</dd></dl>');
+						newpoints[1] = new Array(39.28727030754, -76.57305881381, icon_homicide_stabbing, 'p1745', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1745/kimberly-leto">Kimberly Leto</a></dt><dd class="address">400 S. Ellwood Ave<br />Baltimore, MD 21224</dd><dd>Race: White<br />Gender: female<br />Age: 51 years old</dd><dd>Found on January 31, 2014</dd><dd>Victim died at Scene</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Stabbed inside of her home during a break-in</p></dd></dl>');
+						newpoints[2] = new Array(39.28020500000, -76.68360100000, icon_homicide_shooting, 'p1744', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1744/allan-foster">Allan Foster</a></dt><dd class="address">4100 Walrad St<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 56 years old</dd><dd>Found on January 30, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[3] = new Array(39.28227737546, -76.64078056812, icon_homicide_shooting, 'p1742', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1742/sheena-gamble">Sheena Gamble</a></dt><dd class="address">1500 Cole St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: female<br />Age: 30 years old</dd><dd>Found on January 30, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double fatal shooting; victims found in a vehicle</p></dd></dl>');
+						newpoints[4] = new Array(39.28227737546, -76.64078056812, icon_homicide_shooting, 'p1743', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1743/antonio-foster">Antonio Foster</a></dt><dd class="address">1500 Cole St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 35 years old</dd><dd>Found on January 30, 2014</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double fatal shooting, victims found in car</p></dd></dl>');
+						newpoints[5] = new Array(39.28231430054, -76.56995391846, icon_homicide_shooting, 'p1746', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1746/ricky-bailey">Ricky Bailey</a></dt><dd class="address">900 S Clinton St<br />Baltimore, MD 21224</dd><dd>Race: Black<br />Gender: male<br />Age: 34 years old</dd><dd>Found on January 30, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot in 1998, died in December 2013. Ruled a homicide by the state medical examiner\'s office on this date.&nbsp;</p></dd></dl>');
+						newpoints[6] = new Array(39.34863662720, -76.67819976807, icon_homicide_shooting, 'p1741', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1741/derrill-crawley">Derrill Crawley</a></dt><dd class="address">5200 Denmore Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on January 28, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting, other victim injured</p></dd></dl>');
+						newpoints[7] = new Array(39.33571624756, -76.60710906982, icon_homicide_shooting, 'p1740', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1740/eric-brown">Eric Brown</a></dt><dd class="address">600 E 38th St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 19 years old</dd><dd>Found on January 27, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[8] = new Array(39.32408142090, -76.58947753906, icon_homicide_shooting, 'p1739', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1739/lavar-crawford">Lavar Crawford</a></dt><dd class="address">1900 E 28th St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 16 years old</dd><dd>Found on January 25, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[9] = new Array(39.29060363770, -76.64906311035, icon_homicide_stabbing, 'p1738', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1738/kendrick-martin">Kendrick Martin</a></dt><dd class="address">200 N Payson St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 41 years old</dd><dd>Found on January 25, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[10] = new Array(39.31073494256, -76.65577746928, icon_homicide_stabbing, 'p1737', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1737/arrington-sydnor">Arrington Sydnor</a></dt><dd class="address">2000 Wheeler Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on January 18, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[11] = new Array(39.32292556763, -76.61257171631, icon_homicide_shooting, 'p1736', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1736/tavon-young">Tavon Young</a></dt><dd class="address">300 Ilchester Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on January 17, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[12] = new Array(39.33133697510, -76.67045593262, icon_homicide_shooting, 'p1735', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1735/jermain-johns">Jermain Johns</a></dt><dd class="address">3900 Edgewood Road<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on January 12, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[13] = new Array(39.32886123657, -76.66060638428, icon_homicide_shooting, 'p1734', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1734/dalontae-harper">Dalontae Harper</a></dt><dd class="address">3600 Reisterstown Road<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on January 12, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[14] = new Array(39.29871529341, -76.61383777857, icon_homicide_shooting, 'p1733', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1733/ricky-mellerson">Ricky Mellerson</a></dt><dd class="address">100 E Madison St<br />Baltimore, MD 21202</dd><dd>Race: Black<br />Gender: male<br />Age: 28 years old</dd><dd>Found on January 11, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[15] = new Array(39.37090560794, -76.56971074641, icon_homicide_shooting, 'p1732', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1732/bennett-daniel">Bennett Daniel</a></dt><dd class="address">7000 McClean Blvd<br />Baltimore, MD 21234</dd><dd>Race: Black<br />Gender: male<br />Age: 35 years old</dd><dd>Found on January 10, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[16] = new Array(39.28350830078, -76.65611267090, icon_homicide_stabbing, 'p1731', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1731/dejuan-willis">Dejuan Willis</a></dt><dd class="address">2500 Frederick Ave<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 17 years old</dd><dd>Found on January 10, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[17] = new Array(39.31428909302, -76.61840057373, icon_homicide_shooting, 'p1730', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1730/spencer-falcon">Spencer Falcon</a></dt><dd class="address">2200 Maryland Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 28 years old</dd><dd>Found on January 10, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[18] = new Array(39.28172302246, -76.65132904053, icon_homicide_shooting, 'p1729', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1729/jose-abreu">Jose Abreu</a></dt><dd class="address">500 S Smallwood St<br />Baltimore, MD 21223</dd><dd>Race: Hispanic<br />Gender: male<br />Age: 49 years old</dd><dd>Found on January  9, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting in corner grocery store</p></dd></dl>');
+						newpoints[19] = new Array(39.32172395289, -76.55087560415, icon_homicide_shooting, 'p1728', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1728/marvin-mcgowan">Marvin McGowan</a></dt><dd class="address">5300 Eastbury Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on January  8, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found shot inside of a vehicle</p></dd></dl>');
+						newpoints[20] = new Array(39.34008099139, -76.66325412691, icon_homicide_shooting, 'p1727', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1727/bobby-jones">Bobby Jones</a></dt><dd class="address">4400 Pall Mall Rd<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 51 years old</dd><dd>Found on January  6, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[21] = new Array(39.32600021362, -76.67655944824, icon_homicide_shooting, 'p1726', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1726/jonathan-terry">Jonathan Terry</a></dt><dd class="address">3600 Liberty Heights Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 28 years old</dd><dd>Found on January  6, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[22] = new Array(39.30744171143, -76.66243743897, icon_homicide_shooting, 'p1725', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1725/keon-carter">Keon Carter</a></dt><dd class="address">1700 Ashburton St<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on January  3, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[23] = new Array(39.31113325059, -76.58595018089, icon_homicide_shooting, 'p1720', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1720/daries-williams">Daries Williams</a></dt><dd class="address">1800 Patterson Park Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 37 years old</dd><dd>Found on January  2, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting</p></dd></dl>');
+						newpoints[24] = new Array(39.31113325059, -76.58595018089, icon_homicide_shooting, 'p1724', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1724/nathaniel-adams">Nathaniel Adams</a></dt><dd class="address">1800 N Patterson Park Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on January  2, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[25] = new Array(39.32706069946, -76.56350708008, icon_homicide_shooting, 'p1721', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1721/jermaine-coleman">Jermaine Coleman</a></dt><dd class="address">4300 Shamrock<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on January  2, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[26] = new Array(39.29410552979, -76.68136596680, icon_homicide_shooting, 'p1717', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1717/anthony-turner">Anthony Turner</a></dt><dd class="address">3900 Edmondson Ave<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on January  1, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting; father and son killed</p></dd></dl>');
+						newpoints[27] = new Array(39.29410552979, -76.68136596680, icon_homicide_shooting, 'p1718', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1718/frank-turner">Frank Turner</a></dt><dd class="address">3900 Edmondson Ave<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 48 years old</dd><dd>Found on January  1, 2014</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting; father and son killed</p></dd></dl>');
+						
+			var locations =[];
+			for (var i = 0; i < newpoints.length; i++) {
+				var LatLng = new Microsoft.Maps.Location(newpoints[i][0], newpoints[i][1]);
+				locations.push(LatLng);
+				var pushpin = new Microsoft.Maps.Pushpin(LatLng, { icon: newpoints[i][2], height: 20, width: 12});
+				
+				var title = newpoints[i][4].slice(newpoints[i][4].indexOf('<a'), newpoints[i][4].indexOf('</a>') + 4);
+				var description = newpoints[i][4].slice(0, newpoints[i][4].indexOf('<dt>')) + newpoints[i][4].slice(newpoints[i][4].indexOf('</dt>') + 5, newpoints[i][4].length);
+				pushpin.Title = title;
+				pushpin.Description = description;
+				Microsoft.Maps.Events.addHandler(pushpin, 'click', displayInfobox); 
+				pinLayer.push(pushpin);
+			}
+			
+                        
+
+						//set new bounds
+			var options = map.getOptions();
+			options.bounds = new Microsoft.Maps.LocationRect.fromLocations(locations);
+			map.setView(options);
+						
+		}
+			
+		function onViewChangeEnd(e) {
+		    var zoomLevel = map.getZoom(); 
+		    if (zoomLevel > 14) {
+		        precisionWarn();
+		    }
+		}
+		
+         function displayInfobox(e) {
+             if (e.targetType == "pushpin") {
+                 infoboxLayer.clear();
+                 var description = e.target.Description;
+                 var pinInfobox = new Microsoft.Maps.Infobox(e.target.getLocation(), {
+                     width: 300,
+                     height:200,
+                     title: e.target.Title,
+                     description: "<div style='overflow:auto;'>" + e.target.Description + "</div>",
+                     visible: true,
+                     offset: new Microsoft.Maps.Point(0,15)
+                 });
+
+                 infoboxLayer.push(pinInfobox);
+                 var h = pinInfobox.getHeight();
+                 var options = pinInfobox.getOptions();
+                 options.height = h;
+                 pinInfobox.setOptions(options);
+                 //A buffer limit to use to specify the infobox must be away from the edges of the map.
+                 var buffer = 25;
+
+                 var infoboxOffset = pinInfobox.getOffset();
+                 var infoboxAnchor = pinInfobox.getAnchor();
+                 var infoboxLocation = map.tryLocationToPixel(e.target.getLocation(), Microsoft.Maps.PixelReference.control);
+                 var dx = infoboxLocation.x + infoboxOffset.x - infoboxAnchor.x;
+                 var dy = infoboxLocation.y - 25 - infoboxAnchor.y;
+
+                 if (dy < buffer) {	
+                     dy *= -1;
+                     dy += buffer;
+                 } else {
+                     dy = 0;
+                 }
+                 if (dx < buffer) {	
+                     dx *= -1;
+                     dx += buffer;
+                 } else {
+                     dx = map.getWidth() - infoboxLocation.x + infoboxAnchor.x - pinInfobox.getWidth();
+                     if (dx > buffer) {
+                         dx = 0;
+                     } else {
+                         dx -= buffer;
+                     }
+                 }
+                 if (dx != 0 || dy != 0) {
+                     map.setView({ centerOffset: new Microsoft.Maps.Point(dx, dy), center: map.getCenter() });
+                 }
+             }
+			setTimeout(function(){
+				var boxCandidates = jQuery('.Infobox');
+				if(boxCandidates.length > 0){
+					var boxDl = jQuery('.Infobox dl');
+					var boxCandidates = jQuery('.Infobox');
+					var idealheight = boxDl.height() + 80;
+					var actualheight = boxCandidates.height();
+					var change = idealheight - actualheight;
+					boxCandidates.animate({top:'-='+change,height:'+='+change});
+					jQuery('.infobox-stalk').animate({top:'+='+change,position:'relative'});
+				}
+			},75);
+         }
+		 
+
+		function precisionWarn(map){
+			if(window.precisionWarned != true)
+			alert('Reminder: Police disclosures of homicide information are almost always limited to the block level. Markers in fine-detail or street-level zooms are likely to imply precision that is not actually present.');
+			window.precisionWarned = true;
+		}	
+ 
+		var pinDetail = function (index, name, htmlcontent) {
+		    this.index = index;
+		    this.name = name;
+		    this.htmlcontent = htmlcontent;
+		}
+		
+					
+					//]]>
+	</script>
+
+
+<style type="text/css">
+
+#gregbox-outer {
+background: #000000 !important;
+}
+* html #gregbox-content {
+       border: 6px solid #000000 !important;
+}
+</style>
+
+
+
+<script type="text/javascript">
+function preCheckThebaltimoresun100928($)
+{
+     if (document.referrer.search(/facebook.com/) > -1 || 
+        document.referrer.search(/m.facebook.com/) >-1 || 
+        document.referrer.search(/touch.facebook.com/) >-1 || 
+		document.referrer.search(/twitter.com/) >-1 || 
+		document.referrer.search(/t.co/) > -1 || 
+		document.referrer.search(/plus.url.google.com/) > -1 || 
+		document.referrer.search(/pinterest.com/) > -1 ||
+		document.referrer.search(/reddit.com/) > -1 ||
+		document.referrer.search(/fark.com/) > -1 ||
+		document.referrer.search(/tumblr.com/) > -1 ||
+		document.referrer.search(/digg.com/) > -1 ||
+		document.referrer.search(/stumbleupon.com/) > -1 ||
+		document.referrer.search(/hootsuite.com/) > -1 ||
+	
+        document.referrer.search(/linkedin.com/) > -1)
+    {
+        return 0;
+    }
+return 1;
+}
+</script>
+
+
+
+
+
+	
+</head>
+
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+div#downtimenoticewrapper{
+ height:100px; width:100%;
+ overflow:visible;
+}
+div#downtimenoticeyellow{
+ height:100px;
+ width:100%;
+ background-color:#eeee99;
+}
+div#downtimenoticemessage{
+ float:left;
+ width:70%;
+ margin:10px;
+ font-size:24px;
+ color:#555555;
+ min-height:70px;
+}
+div#downtimenoticeclosebox{
+ float:right;
+ width:30px;
+ margin:10px;
+ color:#777777;
+ font-size:20px;
+}
+</style>
+
+	
+	<div id="header">
+		<h1><a href="http://www.baltimoresun.com/"><img src="http://data.baltimoresun.com/bing-maps/homicides/img/baltsun-gen3-small-logo.gif" border="0" alt="baltimoresun.com" /></a></h1>
+		<div class="share">
+        	<!-- start of Share This code -->
+			<!-- JS for the Share This widget -->
+			<script type="text/javascript" src="http://w.sharethis.com/button/sharethis.js#publisher=be578584-6955-4b24-a481-76e3b63e7141&#38;type=website&#38;post_services=email%2Cfacebook%2Ctwi
+tter%2Cdigg%2Cmyspace%2Csms%2Cdelicious%2Cwordpress%2Cstumbleupon%2Creddit%2Clinkedin%2Cblogger%2Ctechnorati&#38;button=false"></script>
+<!-- End JS for the Share This widget -->
+			<br>&nbsp;<br>
+			<a id="ck_sharethis" href="javascript:void(0);"><b></b>
+			<img src="http://data.baltimoresun.com/academic/2011/images/ShareThisIcon.png" width="219" height="36" /></a>
+		
+			<script type="text/javascript">
+			        var shared_object = SHARETHIS.addEntry({
+			        title: document.title,
+			        url: document.location.href
+			});
+
+			shared_object.attachButton(document.getElementById("ck_sharethis"));
+			shared_object.attachChicklet("email", document.getElementById("ck_email"));
+			shared_object.attachChicklet("facebook", document.getElementById("ck_facebook"));
+			shared_object.attachChicklet("twitter", document.getElementById("ck_twitter"));
+			</script>
+			<br>&nbsp;<br>
+
+			<!-- end of Share This code -->
+		</div>
+	</div>
+	
+	<div id="wrapper">	
+		
+		<div id="help">
+	        <h1 class="page-title">Baltimore homicides</h1>
+			<p>Select options from the dropdown lists below and click "Show Results." The map below will display points for each homicide in Baltimore City that meets your search criteria. Click on a point to get details about that homicide.</p>
+			<p class="results"><span style="color: #cf403d; font-weight:bold;">28 homicides fit your search criteria.</span> <em>There have been 28 homicides in 2014 to date.</em></p>
+            
+		</div>
+		
+		<form id="controller" enctype="multipart/form-data" action="/bing-maps/homicides/index.php" method="get">
+			<fieldset>
+				
+				<div class="dropdown timeframe">
+					<label for="range">Time frame:</label>
+					<select name="range" id="range">
+						<option label="Select one" value="none">Select one</option>
+<option label="Past week" value="7">Past week</option>
+<option label="Past 30 days" value="30">Past 30 days</option>
+<option label="Past 3 months" value="90">Past 3 months</option>
+<option label="Past 6 months" value="180">Past 6 months</option>
+<option label="All of 2014" value="2014" selected="selected">All of 2014</option>
+<option label="All of 2013" value="2013">All of 2013</option>
+<option label="All of 2012" value="2012">All of 2012</option>
+<option label="All of 2011" value="2011">All of 2011</option>
+<option label="All of 2010" value="2010">All of 2010</option>
+<option label="All of 2009" value="2009">All of 2009</option>
+<option label="All of 2008" value="2008">All of 2008</option>
+<option label="All of 2007" value="2007">All of 2007</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="district">District:</label>
+					<select id="district" name="district">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="Central District" value="CD">Central District</option>
+<option label="Eastern District" value="ED">Eastern District</option>
+<option label="Northern District" value="ND">Northern District</option>
+<option label="Northeastern District" value="NE">Northeastern District</option>
+<option label="Northwestern District" value="NW">Northwestern District</option>
+<option label="Southern District" value="SD">Southern District</option>
+<option label="Southeastern District" value="SE">Southeastern District</option>
+<option label="Southwestern District" value="SW">Southwestern District</option>
+<option label="Western District" value="WD">Western District</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="zipcode">ZIP code:</label>
+					<select id="zipcode" name="zipcode">
+						<option label="all" value="all" selected="selected">all</option>
+<option label="21201" value="21201">21201</option>
+<option label="21202" value="21202">21202</option>
+<option label="21205" value="21205">21205</option>
+<option label="21206" value="21206">21206</option>
+<option label="21207" value="21207">21207</option>
+<option label="21208" value="21208">21208</option>
+<option label="21209" value="21209">21209</option>
+<option label="21211" value="21211">21211</option>
+<option label="21212" value="21212">21212</option>
+<option label="21213" value="21213">21213</option>
+<option label="21214" value="21214">21214</option>
+<option label="21215" value="21215">21215</option>
+<option label="21216" value="21216">21216</option>
+<option label="21217" value="21217">21217</option>
+<option label="21218" value="21218">21218</option>
+<option label="21222" value="21222">21222</option>
+<option label="21223" value="21223">21223</option>
+<option label="21224" value="21224">21224</option>
+<option label="21225" value="21225">21225</option>
+<option label="21226" value="21226">21226</option>
+<option label="21227" value="21227">21227</option>
+<option label="21229" value="21229">21229</option>
+<option label="21230" value="21230">21230</option>
+<option label="21231" value="21231">21231</option>
+<option label="21234" value="21234">21234</option>
+<option label="21239" value="21239">21239</option>
+<option label="21287" value="21287">21287</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="age">Age:</label>
+					<select id="age" name="age">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="under 18" value="under18">under 18</option>
+<option label="18 to 25" value="18to25">18 to 25</option>
+<option label="26 to 34" value="26to34">26 to 34</option>
+<option label="35 to 50" value="35to50">35 to 50</option>
+<option label="over 50" value="over50">over 50</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="gender">Gender:</label>
+					<select id="gender" name="gender">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="Male" value="male">Male</option>
+<option label="Female" value="female">Female</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="race">Race:</label>
+					<select id="race" name="race">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="White" value="white">White</option>
+<option label="Black" value="black">Black</option>
+<option label="Asian" value="asian">Asian</option>
+<option label="Hispanic" value="hispanic">Hispanic</option>
+<option label="Unknown" value="unknown">Unknown</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="cause">Cause of death:</label>
+					<select id="cause" name="cause">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="Asphyxiation" value="asphyxiation">Asphyxiation</option>
+<option label="Blunt Force" value="bluntforce">Blunt Force</option>
+<option label="Shooting" value="shooting">Shooting</option>
+<option label="Stabbing" value="stabbing">Stabbing</option>
+<option label="Unknown" value="unknown">Unknown</option>
+<option label="Other" value="other">Other</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="article">Article:</label>
+					<select id="article" name="article">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="No" value="no">No</option>
+<option label="Yes" value="yes">Yes</option>
+
+					</select>
+				</div>
+				
+
+				<br><div id="go"><br>
+					<input type="submit" style="width: 205px; font-weight: bold; font-size: 13px; margin:10px 0 0;" value="Show results" name="show_results" />
+					<label id="default"><a href="http://data.baltimoresun.com/bing-maps/homicides/" title="See most recent 30 days, with no other restrictions on results">Default view</a></label>
+				</div>
+				
+			</fieldset>
+		</form>
+		
+				
+		
+		<div id="map"></div>	
+		
+		<dl id="key">
+			<dt>Map key:</dt>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_blue.png" width="12" height="20" alt=" icon" /> = Asphyxiation</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_green.png" width="12" height="20" alt=" icon" /> = Blunt Force</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png" width="12" height="20" alt=" icon" /> = Other</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_red.png" width="12" height="20" alt=" icon" /> = Shooting</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_black.png" width="12" height="20" alt=" icon" /> = Stabbing</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png" width="12" height="20" alt=" icon" /> = Unknown</dd>
+					</dl>
+		
+		
+		<div id="chart-section">
+
+			<!-- "previous page" action -->
+			<a class="prevPage browse left" title="Following year"></a>
+			
+			<!-- root element for scrollable -->
+			<div class="scrollable">
+				<!-- root element for the items --> 
+				<div class="items"> 
+					
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2014-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2014-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2013-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2013-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2012-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2012-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2011-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2011-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2010-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2010-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2009-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/charts/district-pie-2009.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2008-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/charts/district-pie-2008.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2007-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/charts/district-pie-2007.png" />
+										
+					
+				</div> 
+
+
+			</div>
+			
+			<!-- "next page" action --> 
+			<a class="nextPage browse right" title="Previous year"></a>
+		</div>
+				
+
+                                <div class="recentvictims"><b style="color:#bbbbbb;">Most recent homicides, ordered by time found: <br style="clear:both;"><br></b><div class="lfrow"><div class="lfdate"><b>Date &amp; time</b></div><div class="lffirst"><b>Victim name</b></div><div class="lfaddress"><b>Address</b></div><div class="lfage"><b>Age</b></div><div class="lfgender"><b>Gender</b></div><div class="lfrace"><b>Race</b></div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1747/">2014-02-05 12:00 AM</a></div><div class="lfname">Tsambikos Diakoloukas</div><div class="lfaddress">400 S Caroline St</div><div class="lfage">79</div><div class="lfgender">male</div><div class="lrace">White</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1745/">2014-01-31 7:30 AM</a></div><div class="lfname">Kimberly Leto</div><div class="lfaddress">400 S. Ellwood Ave</div><div class="lfage">51</div><div class="lfgender">female</div><div class="lrace">White</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1744/">2014-01-30 6:50 PM</a></div><div class="lfname">Allan Foster</div><div class="lfaddress">4100 Walrad St</div><div class="lfage">56</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1742/">2014-01-30 9:50 AM</a></div><div class="lfname">Sheena Gamble</div><div class="lfaddress">1500 Cole St</div><div class="lfage">30</div><div class="lfgender">female</div><div class="lrace">Black</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1743/">2014-01-30 9:50 AM</a></div><div class="lfname">Antonio Foster</div><div class="lfaddress">1500 Cole St</div><div class="lfage">35</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1746/">2014-01-30 12:00 AM</a></div><div class="lfname">Ricky Bailey</div><div class="lfaddress">900 S Clinton St</div><div class="lfage">34</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1741/">2014-01-28 12:30 PM</a></div><div class="lfname">Derrill Crawley</div><div class="lfaddress">5200 Denmore Ave</div><div class="lfage">25</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1740/">2014-01-27 8:30 PM</a></div><div class="lfname">Eric Brown</div><div class="lfaddress">600 E 38th St</div><div class="lfage">19</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1739/">2014-01-25 11:35 PM</a></div><div class="lfname">Lavar Crawford</div><div class="lfaddress">1900 E 28th St</div><div class="lfage">16</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1738/">2014-01-25 12:55 AM</a></div><div class="lfname">Kendrick Martin</div><div class="lfaddress">200 N Payson St</div><div class="lfage">41</div><div class="lfgender">male</div><div class="lrace">Black</div></div><br><a style="margin-top:20px 0 0 5px; float:left; font-weight:bold;" href="recenthundred.php">View last hundred homicides</a></div>
+
+		
+		
+				<p id="modified-on"><!-- Data current as of February  5, 2014. --></p>
+				
+	</div><!-- end #wrapper -->
+	
+	<p id="made-by">&copy; 2014 
+		<a href="http://www.baltimoresun.com/">Baltimore Sun Media Group</a>. 
+		
+					Data current as of February  5, 2014.
+				
+		<a href="javascript:na_open_window('credits', 'credits.php', 200, 200, 450, 225, 0, 0, 0, 0, 1);">Credits</a>
+
+
+
+
+
+
+
+<!-- start of Share This code -->
+<!-- JS for the Share This widget -->
+<script type="text/javascript" src="http://w.sharethis.com/button/sharethis.js#publisher=be578584-6955-4b24-a481-76e3b63e7141&#38;type=website&#38;post_services=email%2Cfacebook%2Ctwitter%2Cdigg%2Cmyspace%2Csms%2Cdelicious%2Cwordpress%2Cstumbleupon%2Creddit%2Clinkedin%2Cblogger%2Ctechnorati&#38;button=false"></script>
+<!-- End JS for the Share This widget -->
+<br>&nbsp;<br>
+<a id="ck_sharethis" href="javascript:void(0);"><b></b>
+<img src="http://data.baltimoresun.com/academic/2011/images/ShareThisIcon.png" width="219" height="36" /></a> 
+    
+<script type="text/javascript">
+	var shared_object = SHARETHIS.addEntry({
+	title: document.title,
+	url: document.location.href
+});
+
+shared_object.attachButton(document.getElementById("ck_sharethis"));
+shared_object.attachChicklet("email", document.getElementById("ck_email"));
+shared_object.attachChicklet("facebook", document.getElementById("ck_facebook"));
+shared_object.attachChicklet("twitter", document.getElementById("ck_twitter"));
+</script>
+<br>&nbsp;<br>
+
+<!-- end of Share This code -->
+
+
+
+<script src="http://extras.baltimoresun.com/js/legacy-js-for-homicides-slider/flowplayer.org-1.1.2-jquery.tools.min.js"></script>
+
+
+
+	</p>
+	
+	<script type="text/javascript"> 		
+		$(function() {
+			//initialize scrollable
+			$(".scrollable").scrollable({
+				size: 2,
+				clickable: true,
+				loop: false
+			});
+		});
+	</script>
+	
+	<script language="JavaScript">
+		var s_account = "tribglobal";
+	</script>
+	
+	<!-- SiteCatalyst code version: H.1. Copyright 1997-2005 Omniture, Inc. More info available at http://www.omniture.com -->
+	<script type="text/javascript" src="http://www.baltimoresun.com/hive/javascripts/metrics/s_code_trb.js"></script>
+
+	<script language="JavaScript">
+
+	s.pageName="Homicides Map - Baltimore Sun / news / maryland / crime - Story.";
+	s.prop38="Story";
+	s.eVar21="Story";
+
+	s.server="www.baltimoresun.com";
+	s.channel="Baltimore Sun:news:maryland:crime";
+	s.prop3="";
+	s.prop28="";
+	s.prop32="";
+
+	s.prop36="";
+
+	s.prop37="";
+
+	/* E-commerce Variables */
+	s.events="";
+	s.eVar20="Baltimore Sun";
+
+	s.hier1="Baltimore Sun:news:maryland:crime";
+	s.hier2="news:maryland:crime";
+	s.hier4="news:maryland:crime";
+
+	s.prop44="";
+
+
+	//AD Block Detection
+	//Description: 	Check if any IMG, IFRAME, or SCRIPT elements are ad blocked (set to not display).
+	//		Also check for the occurance of any Norton installed code to block popups or ads ( ie.)SymError ).
+	//		Only need to find 1 occurrance of any of the above to confirm ad blocking is used. 
+	//		No need to continue searching through other portions of the page.
+
+	var imgArray = document.images;
+	var iframeArray = document.getElementsByTagName("iframe");
+	var scriptArray = document.getElementsByTagName("script");
+	var isAdBlocked = 0;
+
+
+	if(window.SymError || window.SymWinOpen || window.SymRealWinOpen)
+	{
+		isAdBlocked=1;
+	}
+	if (!isAdBlocked)
+	{
+		for (var i=0; i<imgArray.length; i++)
+		{
+			if(imgArray[i].style.display == 'none')
+			{
+				isAdBlocked=1;
+				break;
+			}
+		}
+	}
+
+	if (!isAdBlocked)
+	{
+		for (var j=0; j<iframeArray.length; j++)
+		{
+			if (iframeArray[j].style.display == 'none')
+			{
+				isAdBlocked=1;
+				break;
+			}
+		}
+	}
+
+	if (!isAdBlocked)
+	{
+		for (var j=0; j<scriptArray.length; j++)
+		{
+			if (scriptArray[j].style.display == 'none')
+			{
+				isAdBlocked=1;
+				break;
+			}
+		}
+	}
+
+	if(isAdBlocked)
+	{
+		s.prop50="ad blocking";
+	}
+
+
+	/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+	var s_code=s.t();if(s_code)document.write(s_code) 
+	-->  
+	</script>
+	<script language="JavaScript"><!--
+	if(navigator.appVersion.indexOf('MSIE')>=0)document.write(unescape('%3C')+'\!-'+'-')
+	//--></script><!--/DO NOT REMOVE/-->
+	<!-- End SiteCatalyst code version: H.1. -->
+
+
+
+	<!-- START REVENUE SCIENCE PIXELLING CODE -->
+	<script src="http://js.revsci.net/gateway/gw.js?csid=B08725"></script>
+	<script>
+	DM_addEncToLoc("Site", (s.server));
+	DM_addEncToLoc("channel", (s.channel));
+	DM_addEncToLoc("keyword", (s.prop3));
+	DM_cat(s.hier1);
+	DM_tag();
+	</script>
+	<!-- END REVENUE SCIENCE PIXELLING CODE -->
+
+
+
+
+</body>
+</html>

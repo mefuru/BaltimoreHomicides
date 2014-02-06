@@ -1,0 +1,911 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"> 
+<head> 
+	<title>Baltimore Homicides - baltimoresun.com</title>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/> 
+	
+	<link rel="stylesheet" type="text/css" href="/homicides/css/reset.css" media="all" />
+	<link rel="stylesheet" type="text/css" href="http://data.baltimoresun.com/bing-maps/homicides/css/public.css?nocache" media="all" />
+	
+	<link rel="alternate" type="application/rss+xml" title="Baltimore Homicides - baltimoresun.com" href="http://data.baltimoresun.com/bing-maps/homicides/feed/" />
+	
+	<script language="JavaScript">
+		<!--
+		function na_open_window(name, url, left, top, width, height, toolbar, menubar, statusbar, scrollbar, resizable) {
+			toolbar_str = toolbar ? 'yes' : 'no';
+			menubar_str = menubar ? 'yes' : 'no';
+			statusbar_str = statusbar ? 'yes' : 'no';
+			scrollbar_str = scrollbar ? 'yes' : 'no';
+			resizable_str = resizable ? 'yes' : 'no';
+			window.open(url, name, 'left='+left+',top='+top+',width='+width+',height='+height+',toolbar='+toolbar_str+',menubar='+menubar_str+',status='+statusbar_str+',scrollbars='+scrollbar_str+',resizable='+resizable_str);
+		}
+		// -->
+	</script>
+	
+	<!-- bing scripts -->
+		<script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
+		<!--<script src="http://cdn.jquerytools.org/1.1.2/jquery.tools.min.js"></script>-->
+		<script src="http://extras.baltimoresun.com/js/legacy-js-for-homicides-slider/flowplayer.org-1.1.2-jquery.tools.min.js"></script>
+		<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.min.js"></script>
+	
+	
+	<script type="text/javascript">
+
+
+		//<![CDATA[
+		
+		var map;
+		var infoboxLayer;
+		var defaultcursor;
+		
+				var icon_homicide_asphyxiation;
+				var icon_homicide_bluntforce;
+				var icon_homicide_other;
+				var icon_homicide_shooting;
+				var icon_homicide_stabbing;
+				var icon_homicide_unknown;
+				
+		var newpoints = new Array();
+
+
+		function addLoadEvent(func) { 
+			var oldonload = window.onload; 
+			if (typeof window.onload != 'function'){ 
+				window.onload = func
+			} else { 
+				window.onload = function() {
+					oldonload();
+					func();
+				}
+			}
+		}
+ 
+		addLoadEvent(loadMap);
+			
+		function loadMap() {
+
+			map = new Microsoft.Maps.Map(document.getElementById('map'), {
+				credentials: 'Aqu4JoJ71xsWd6qRLXqz2zdNXl2UWcXR2dfKiDWCJ88dKENk7zu5ob-D02HHv5t_',
+				center: new Microsoft.Maps.Location(39.2891399125, -76.6165924072),
+				zoom: 12,
+				width: 962,
+                height: 600
+			});
+			Microsoft.Maps.Events.addHandler(map, 'viewchangeend', function (e) { onViewChangeEnd(e); });
+
+			defaultcursor = map.getRootElement().style.cursor;
+			Microsoft.Maps.Events.addHandler(map, "mousemove", function (e) {
+			  var mapElem = map.getRootElement();
+			  if (e.targetType === "map") {
+				mapElem.style.cursor = defaultcursor;
+			  } else {
+				mapElem.style.cursor = "pointer";
+			  }
+			});
+
+			pinLayer = new Microsoft.Maps.EntityCollection();
+			map.entities.push(pinLayer);
+
+			infoboxLayer = new Microsoft.Maps.EntityCollection();
+			map.entities.push(infoboxLayer);
+			
+							icon_homicide_asphyxiation = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_blue.png";
+							icon_homicide_bluntforce = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_green.png";
+							icon_homicide_other = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png";
+							icon_homicide_shooting = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_red.png";
+							icon_homicide_stabbing = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_black.png";
+							icon_homicide_unknown = "http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png";
+						
+			
+						newpoints[0] = new Array(39.35000000000, -76.66580000000, icon_homicide_shooting, 'p1222', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1222/tiyon-campbell">Tiyon Campbell</a></dt><dd class="address">2800 W Garrison Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on December 28, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Home invasion/robbery</p></dd></dl>');
+						newpoints[1] = new Array(39.24972920000, -76.63036560000, icon_homicide_shooting, 'p1221', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1221/damond-wallace">Damond Wallace</a></dt><dd class="address">2700 Giles Rd<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on December 24, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[2] = new Array(39.32989760000, -76.60500810000, icon_homicide_bluntforce, 'p1220', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1220/shirley-garrett">Shirley Garrett</a></dt><dd class="address">800 E 34 St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: female<br />Age: 67 years old</dd><dd>Found on December 22, 2011</dd><dd>Victim died at Union Memorial Hospital</dd><dd>Cause: Blunt Force</dd><dd class="popup-note"><p>Garrett was beaten with a hammer on March 31 by her 14-year-old grandson Hassanhii Garrett, who police say admitted to...</dd></dl>');
+						newpoints[3] = new Array(39.28483780000, -76.65613470000, icon_homicide_shooting, 'p1219', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1219/dameone-suggs">Dameone Suggs</a></dt><dd class="address">2500 W Pratt St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 40 years old</dd><dd>Found on December 21, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[4] = new Array(39.30259890000, -76.66898810000, icon_homicide_shooting, 'p1218', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1218/donte-collins">Donte Collins</a></dt><dd class="address">1500 Rosedale St<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on December 19, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting</p></dd></dl>');
+						newpoints[5] = new Array(39.29043840000, -76.65167190000, icon_homicide_shooting, 'p1216', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1216/dayon-barnes">Dayon Barnes</a></dt><dd class="address">200 N Smallwood St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 27 years old</dd><dd>Found on December 18, 2011</dd><dd>Victim died at Bon Secours Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[6] = new Array(39.32925090000, -76.56409650000, icon_homicide_shooting, 'p1217', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1217/jeffrey-smith">Jeffrey Smith</a></dt><dd class="address">4200 Nicholas Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 32 years old</dd><dd>Found on December 17, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[7] = new Array(39.31245700000, -76.67862900000, icon_homicide_shooting, 'p1215', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1215/lawrence-edwards">Lawrence Edwards</a></dt><dd class="address">2200 Elsinore Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on December 16, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[8] = new Array(39.33135490000, -76.65778650000, icon_homicide_stabbing, 'p1214', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1214/dwight-jones">Dwight Jones</a></dt><dd class="address">2500 Violet Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 58 years old</dd><dd>Found on December 10, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[9] = new Array(39.32351700000, -76.61486400000, icon_homicide_shooting, 'p1213', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1213/brandon-hudson">Brandon Hudson</a></dt><dd class="address">2900 N. Calvert St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on December  8, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found inside apartment.&nbsp;</p></dd></dl>');
+						newpoints[10] = new Array(39.29272400000, -76.57214000000, icon_homicide_stabbing, 'p1210', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1210/carlos-martinez">Carlos Martinez</a></dt><dd class="address">1 N. East Ave<br />Baltimore, MD 21224</dd><dd>Race: Hispanic<br />Gender: male<br />Age: 27 years old</dd><dd>Found on December  6, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[11] = new Array(39.31090600000, -76.61640790000, icon_homicide_shooting, 'p1211', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1211/ronald-watkins">Ronald Watkins</a></dt><dd class="address">1 E. North Ave<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 35 years old</dd><dd>Found on December  6, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Watkins was shot in 1992 at age 16, and suffered damage to his aorta. Police say he died July 10, 2011, and his death...</dd></dl>');
+						newpoints[12] = new Array(39.28126900000, -76.65269900000, icon_homicide_shooting, 'p1209', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1209/kenneth-davis">Kenneth Davis</a></dt><dd class="address">500 S Bentalou St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on November 29, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[13] = new Array(39.29462600000, -76.63229500000, icon_homicide_shooting, 'p1208', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1208/tavon-toney">Tavon Toney</a></dt><dd class="address">900 W Franklin St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on November 22, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Toney was shot on Nov. 21; this date reflects the date that he died.&nbsp;</p></dd></dl>');
+						newpoints[14] = new Array(39.29683390000, -76.63748690000, icon_homicide_shooting, 'p1207', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1207/gregory-mcfadden">Gregory McFadden</a></dt><dd class="address">700 N Carrollton Ave<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on November 15, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[15] = new Array(39.30767900000, -76.65608600000, icon_homicide_shooting, 'p1205', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1205/steven-pennington">Steven Pennington</a></dt><dd class="address">1700 Moreland St<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 32 years old</dd><dd>Found on November 14, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[16] = new Array(39.31544400000, -76.59932900000, icon_homicide_shooting, 'p1206', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1206/kevin-lofland">Kevin Lofland</a></dt><dd class="address">2200 Aiken St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 18 years old</dd><dd>Found on November 12, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting</p></dd></dl>');
+						newpoints[17] = new Array(39.29798890000, -76.62781980000, icon_homicide_shooting, 'p1203', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1203/darren-robertson">Darren Robertson</a></dt><dd class="address">1000 Pennsylvania Ave<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on November 12, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[18] = new Array(39.32688740000, -76.57558120000, icon_homicide_shooting, 'p1204', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1204/lakeishe-player">Lakeishe Player</a></dt><dd class="address">2600 kentucky ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: female<br />Age: 26 years old</dd><dd>Found on November 11, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found inside home</p></dd></dl>');
+						newpoints[19] = new Array(39.34267000000, -76.59304300000, icon_homicide_shooting, 'p1202', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1202/santos-villanueva">Santos Villanueva</a></dt><dd class="address">4300 Loch Raven Boulevard<br />Baltimore, MD 21218</dd><dd>Race: Hispanic<br />Gender: male<br />Age: 25 years old</dd><dd>Found on November  9, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[20] = new Array(39.34838690000, -76.67475040000, icon_homicide_asphyxiation, 'p1201', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1201/shirley-tyler">Shirley Tyler</a></dt><dd class="address">3200 Spaulding Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: female<br />Age: 67 years old</dd><dd>Found on November  8, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Asphyxiation</dd><dd class="popup-note"><p>Tyler was found dead in her home on Nov. 5; police added her death to the homicide count on this date and charged her...</dd></dl>');
+						newpoints[21] = new Array(39.33626300000, -76.55553990000, icon_homicide_shooting, 'p1200', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1200/davon-diggs">Davon Diggs</a></dt><dd class="address">4100 Parkwood Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on November  5, 2011</dd><dd>Victim died at Johns Hopkins Bayview Medical Center </dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Originally reported in 5000 Belair Road; later determined to be rear alley of 4100 block Parkwood</p></dd></dl>');
+						newpoints[22] = new Array(39.32355530000, -76.60964570000, icon_homicide_shooting, 'p1199', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1199/freddie-jones-jr">Freddie Jones Jr.</a></dt><dd class="address">2900 Greenmount Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 52 years old</dd><dd>Found on October 31, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[23] = new Array(39.35441920000, -76.61004470000, icon_homicide_shooting, 'p1198', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1198/richard-ford-jr">Richard Ford Jr.</a></dt><dd class="address">5300 York Road<br />Baltimore, MD 21212</dd><dd>Race: White<br />Gender: male<br />Age: 38 years old</dd><dd>Found on October 31, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Ford and his pregnant girlfriend, Kimberly Smith, were shot on Feb 1, 1998. Smith died, while Ford was critically...</dd></dl>');
+						newpoints[24] = new Array(39.29580300000, -76.62935220000, icon_homicide_stabbing, 'p1197', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1197/eddie-nance">Eddie Nance</a></dt><dd class="address">600 George St<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 53 years old</dd><dd>Found on October 28, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[25] = new Array(39.30319990000, -76.66128800000, icon_homicide_shooting, 'p1196', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1196/shyekee-wilson">Shyekee Wilson</a></dt><dd class="address">1300 Braddish Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 18 years old</dd><dd>Found on October 27, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[26] = new Array(39.34001390000, -76.60347000000, icon_homicide_bluntforce, 'p1195', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1195/sherry-montgomery-cantey">Sherry Montgomery-Cantey</a></dt><dd class="address">900 E. 41st St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: female<br />Age: 43 years old</dd><dd>Found on October 25, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Blunt Force</dd></dl>');
+						newpoints[27] = new Array(39.31099600000, -76.63326900000, icon_homicide_shooting, 'p1194', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1194/edward-bardney">Edward Bardney</a></dt><dd class="address">2000 Linden Ave<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 38 years old</dd><dd>Found on October 24, 2011</dd><dd>Victim died at University of Maryland Medical Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[28] = new Array(39.31390870000, -76.64561330000, icon_homicide_shooting, 'p1193', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1193/samuel-pinkney">Samuel Pinkney</a></dt><dd class="address">2800 S. Woodbrook AVe<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 18 years old</dd><dd>Found on October 21, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[29] = new Array(39.30941660000, -76.60026800000, icon_homicide_shooting, 'p1190', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1190/antoinne-pratt">Antoinne Pratt</a></dt><dd class="address">1700 Harford Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on October 17, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot while inside vehicle</p></dd></dl>');
+						newpoints[30] = new Array(39.31544400000, -76.59932900000, icon_homicide_shooting, 'p1189', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1189/marquis-jones">Marquis Jones</a></dt><dd class="address">2200 Aiken St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on October 16, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[31] = new Array(39.32474800000, -76.59474890000, icon_homicide_shooting, 'p1187', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1187/christopher-mcmillion">Christopher McMillion</a></dt><dd class="address">1500 E. 29th St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on October 14, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[32] = new Array(39.29276460000, -76.66302040000, icon_homicide_bluntforce, 'p1192', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1192/willie-nelson">Willie Nelson</a></dt><dd class="address">2800 W. Mulberry St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 52 years old</dd><dd>Found on October 13, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Blunt Force</dd><dd class="popup-note"><p>Nelson was found dead inside a home on Aug. 16, and an autopsy later determined he had died from blunt force trauma....</dd></dl>');
+						newpoints[33] = new Array(39.31125600000, -76.58434100000, icon_homicide_shooting, 'p1186', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1186/louis-ingram">Louis Ingram</a></dt><dd class="address">2400 E. Lafayette St<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on October 11, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[34] = new Array(39.31284930000, -76.63151430000, icon_homicide_shooting, 'p1191', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1191/earl-brown">Earl Brown</a></dt><dd class="address">2200 Callow Ave<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 36 years old</dd><dd>Found on October 11, 2011</dd><dd>Victim died at Union Memorial Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Brown was shot in the head on Sept. 23, 1999 and developed a seizure disorder. He died from a seizure on Oct. 7, and...</dd></dl>');
+						newpoints[35] = new Array(39.28514000000, -76.63973500000, icon_homicide_shooting, 'p1185', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1185/devearl-singletary">Devearl Singletary</a></dt><dd class="address">1400 Kuper Place<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 17 years old</dd><dd>Found on October 10, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[36] = new Array(39.29543510000, -76.57856960000, icon_homicide_shooting, 'p1184', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1184/kevin-pierre">Kevin Pierre</a></dt><dd class="address">300 N. Belnord Ave<br />Baltimore, MD 21224</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on October 10, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd><a href="http://weblogs.baltimoresun.com/news/crime/blog/2011/10/man_fatally_shot_in_mcelderry.html">Read the article</a></dd></dl>');
+						newpoints[37] = new Array(39.22919410000, -76.60146580000, icon_homicide_shooting, 'p1183', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1183/maricus-perkins">Maricus Perkins</a></dt><dd class="address">900 Herndon Ct<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on October  3, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[38] = new Array(39.30440190000, -76.63147260000, icon_homicide_shooting, 'p1182', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1182/anton-ingram">Anton Ingram</a></dt><dd class="address">500 McMechen St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 32 years old</dd><dd>Found on October  3, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[39] = new Array(39.32662000000, -76.58916800000, icon_homicide_shooting, 'p1181', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1181/aldrick-hamilton">Aldrick Hamilton</a></dt><dd class="address">1900 E. 31st St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 32 years old</dd><dd>Found on September 28, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[40] = new Array(39.29304800000, -76.59816830000, icon_homicide_shooting, 'p1180', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1180/antonio-blackwell">Antonio Blackwell</a></dt><dd class="address">1400 E Fayette St<br />Baltimore, MD 21231</dd><dd>Race: Black<br />Gender: male<br />Age: 26 years old</dd><dd>Found on September 28, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[41] = new Array(39.31157500000, -76.67558090000, icon_homicide_shooting, 'p1179', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1179/dwight-montgomery">Dwight Montgomery</a></dt><dd class="address">2200 Garrison Blvd<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 45 years old</dd><dd>Found on September 28, 2011</dd><dd>Victim died at Sinai Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[42] = new Array(39.35166700000, -76.69318300000, icon_homicide_shooting, 'p1178', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1178/keith-parker">Keith Parker</a></dt><dd class="address">4000 Primrose Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 38 years old</dd><dd>Found on September 27, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found shot to death in a vehicle.&nbsp;</p></dd></dl>');
+						newpoints[43] = new Array(39.33969200000, -76.68115200000, icon_homicide_shooting, 'p1176', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1176/gregory-toles">Gregory Toles</a></dt><dd class="address">3900 Dolfield Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on September 25, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting; this victim was shot in the head and back</p></dd></dl>');
+						newpoints[44] = new Array(39.33969200000, -76.68115200000, icon_homicide_shooting, 'p1177', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1177/tyrone-mcqueen">Tyrone McQueen</a></dt><dd class="address">3900 Dolfield Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 28 years old</dd><dd>Found on September 25, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting; this victim was shot in the face.&nbsp;</p></dd></dl>');
+						newpoints[45] = new Array(39.32989760000, -76.60500810000, icon_homicide_shooting, 'p1175', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1175/robert-james">Robert James</a></dt><dd class="address">800 E 34th St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on September 21, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot while sitting in driver\'s seat of vehicle</p></dd></dl>');
+						newpoints[46] = new Array(39.29627500000, -76.57230100000, icon_homicide_shooting, 'p1173', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1173/thomas-powell">Thomas Powell</a></dt><dd class="address">400 N East Ave<br />Baltimore, MD 21224</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on September 20, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[47] = new Array(39.33414690000, -76.67352790000, icon_homicide_shooting, 'p1174', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1174/isaiah-roane">Isaiah Roane</a></dt><dd class="address">3500 Dolfield Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on September 20, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting from Sept. 7; date reflects when vicitm died</p></dd></dl>');
+						newpoints[48] = new Array(39.28999640000, -76.63223870000, icon_homicide_stabbing, 'p1172', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1172/gregory-parker">Gregory Parker</a></dt><dd class="address">100 N Poppleton Ave<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on September 19, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[49] = new Array(39.23511840000, -76.60112860000, icon_homicide_shooting, 'p1171', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1171/larry-petty">Larry Petty</a></dt><dd class="address">700 E Pontiac Ave<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on September 17, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd><a href="http://articles.baltimoresun.com/2011-09-17/news/bs-md-ci-pontiac-homicide-20110917_1_homicide-detectives-dead-man-second-man">Read the article</a></dd></dl>');
+						newpoints[50] = new Array(39.24123310000, -76.62524930000, icon_homicide_asphyxiation, 'p1170', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1170/armando-santiago">Armando Santiago</a></dt><dd class="address">700 W Patapsco Ave<br />Baltimore, MD 21225</dd><dd>Race: Hispanic<br />Gender: male<br />Age: 42 years old</dd><dd>Found on September 16, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Asphyxiation</dd><dd class="popup-note"><p>Found in an alley</p></dd></dl>');
+						newpoints[51] = new Array(39.28632800000, -76.64696800000, icon_homicide_shooting, 'p1167', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1167/bruce-benn">Bruce Benn</a></dt><dd class="address">1900 W. Lombard St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 16 years old</dd><dd>Found on September 14, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[52] = new Array(39.31600660000, -76.57686800000, icon_homicide_shooting, 'p1169', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1169/gerrod-davis">Gerrod Davis</a></dt><dd class="address">3300 Elmora Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on September 13, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Davis was shot Aug. 31, 2006, died February 9, 2009, and his death was ruled a homicide by the state medical examiner\'s...</dd></dl>');
+						newpoints[53] = new Array(39.34055340000, -76.60767780000, icon_homicide_shooting, 'p1166', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1166/marcus-hopkins">Marcus Hopkins</a></dt><dd class="address">4200 Old York Road<br />Baltimore, MD 21212</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on September  8, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[54] = new Array(39.30063000000, -76.66187200000, icon_homicide_stabbing, 'p1165', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1165/dalyrie-mcfadden">Dalyrie McFadden</a></dt><dd class="address">2700 Riggs Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 1 year old</dd><dd>Found on September  7, 2011</dd><dd>Victim died at St. Agnes Hospital </dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Child\'s father, Hari Close, charged with boy\'s murder.&nbsp;</p></dd></dl>');
+						newpoints[55] = new Array(39.29652850000, -76.58774930000, icon_homicide_shooting, 'p1164', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1164/antonio-laws">Antonio Laws</a></dt><dd class="address">500 N Chester St<br />Baltimore, MD 21205</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on September  4, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot while sleeping in home</p></dd></dl>');
+						newpoints[56] = new Array(39.27864630000, -76.61706630000, icon_homicide_bluntforce, 'p1162', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1162/janice-drayton">Janice Drayton</a></dt><dd class="address">900 Leadenhall St<br />Baltimore, MD 21230</dd><dd>Race: Black<br />Gender: female<br />Age: 51 years old</dd><dd>Found on September  1, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Blunt Force</dd></dl>');
+						newpoints[57] = new Array(39.35724500000, -76.59137800000, icon_homicide_bluntforce, 'p1163', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1163/davon-booth-jr">Davon Booth Jr.</a></dt><dd class="address">5600 Woodmont Ave<br />Baltimore, MD 21239</dd><dd>Race: Black<br />Gender: male<br />Age: 1 year old</dd><dd>Found on September  1, 2011</dd><dd>Victim died at Good Samaritan Hospital</dd><dd>Cause: Blunt Force</dd><dd class="popup-note"><p>Davon was pronounced dead on Aug. 8. An autopsy later revealed he had died as a result of head trauma. This date...</dd></dl>');
+						newpoints[58] = new Array(39.24595530000, -76.62748300000, icon_homicide_shooting, 'p1161', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1161/dewayne-jones">Dewayne Jones</a></dt><dd class="address">2800 Round Rd<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on August 28, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[59] = new Array(39.32098250000, -76.59409020000, icon_homicide_bluntforce, 'p1160', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1160/dramiara-johnson">Dramiara Johnson</a></dt><dd class="address">1700 Gorsuch Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: female<br />Age: 4 years old</dd><dd>Found on August 27, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Blunt Force</dd></dl>');
+						newpoints[60] = new Array(39.30434700000, -76.60528600000, icon_homicide_shooting, 'p1159', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1159/kennard-hailey">Kennard Hailey</a></dt><dd class="address">1200 Valley St<br />Baltimore, MD 21202</dd><dd>Race: Black<br />Gender: male<br />Age: 26 years old</dd><dd>Found on August 25, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[61] = new Array(39.32572400000, -76.67943400000, icon_homicide_shooting, 'p1157', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1157/lee-jones-iii">Lee Jones III</a></dt><dd class="address">3700 W. Forest Park Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on August 23, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting</p></dd></dl>');
+						newpoints[62] = new Array(39.32231410000, -76.55292900000, icon_homicide_shooting, 'p1156', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1156/big-gurung">Big Gurung</a></dt><dd class="address">5200 Bowleys Lane<br />Baltimore, MD 21206</dd><dd>Race: Asian<br />Gender: female<br />Age: 20 years old</dd><dd>Found on August 23, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting, police investigating possible robbery motive</p></dd></dl>');
+						newpoints[63] = new Array(39.30401300000, -76.58288400000, icon_homicide_shooting, 'p1154', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1154/lawrence-rollings">Lawrence Rollings</a></dt><dd class="address">1100 N. Milton Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on August 22, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot on 21st; pronounced dead on 22nd.&nbsp;</p></dd></dl>');
+						newpoints[64] = new Array(39.29007950000, -76.67951780000, icon_homicide_shooting, 'p1158', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1158/jerome-golphin">Jerome Golphin</a></dt><dd class="address">200 Mt Holly St<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on August 22, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[65] = new Array(39.35683790000, -76.55772720000, icon_homicide_stabbing, 'p1155', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1155/alfred-garner-jr">Alfred Garner Jr.</a></dt><dd class="address">6000 Harford Rd<br />Baltimore, MD 21214</dd><dd>Race: Black<br />Gender: male<br />Age: 35 years old</dd><dd>Found on August 22, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Fight outside Ibis bar; Garner was stabbed on 8/21, date reflects when he died.&nbsp;</p></dd></dl>');
+						newpoints[66] = new Array(39.31104400000, -76.67422710000, icon_homicide_shooting, 'p1153', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1153/demetrius-sowers">Demetrius Sowers</a></dt><dd class="address">3400 Clifton Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 33 years old</dd><dd>Found on August 14, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[67] = new Array(39.34265800000, -76.66326400000, icon_homicide_shooting, 'p1152', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1152/derrell-burrow">Derrell Burrow</a></dt><dd class="address">2900 Edgecombe Circle S<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on August 14, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[68] = new Array(39.32669000000, -76.55243290000, icon_homicide_stabbing, 'p1151', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1151/irene-logan">Irene Logan</a></dt><dd class="address">4700 Moravia Road<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: female<br />Age: 91 years old</dd><dd>Found on August  3, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Found stabbed to death in home, which had been ransacked.&nbsp;</p></dd></dl>');
+						newpoints[69] = new Array(39.31492900000, -76.59607690000, icon_homicide_shooting, 'p1150', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1150/sean-eames">Sean Eames</a></dt><dd class="address">1600 Darley Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on August  1, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[70] = new Array(39.29763100000, -76.71053200000, icon_homicide_shooting, 'p1148', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1148/anthony-tarbert">Anthony Tarbert</a></dt><dd class="address">1100 Wedgewood Rd<br />Baltimore, MD 21229</dd><dd>Race: White<br />Gender: male<br />Age: 15 years old</dd><dd>Found on August  1, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting; two teens killed. Date reflects when he was found.&nbsp;</p></dd></dl>');
+						newpoints[71] = new Array(39.29763100000, -76.71053200000, icon_homicide_shooting, 'p1149', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1149/dominic-perry">Dominic Perry</a></dt><dd class="address">1100 Wedgewood Rd<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 15 years old</dd><dd>Found on July 31, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting</p></dd></dl>');
+						newpoints[72] = new Array(39.31879800000, -76.55122100000, icon_homicide_shooting, 'p1147', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1147/gerald-bonner">Gerald Bonner</a></dt><dd class="address">4800 Bowland Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on July 30, 2011</dd><dd>Victim died at Johns Hopkins Bayview Medical Center </dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Two additional victims were located at area hospitals.&nbsp;</p></dd></dl>');
+						newpoints[73] = new Array(39.30436800000, -76.59383240000, icon_homicide_shooting, 'p1146', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1146/hassan-frank">Hassan Frank</a></dt><dd class="address">1200 N. Gay St<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on July 29, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Body found in trunk of car</p></dd></dl>');
+						newpoints[74] = new Array(39.31948200000, -76.56351500000, icon_homicide_shooting, 'p1145', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1145/anthony-f-johnson">Anthony F. Johnson</a></dt><dd class="address">3600 Chesterfield Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 47 years old</dd><dd>Found on July 27, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found slumped over behind wheel of car.&nbsp;</p></dd></dl>');
+						newpoints[75] = new Array(39.30142300000, -76.57910100000, icon_homicide_shooting, 'p1144', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1144/ryshawn-cox">Ryshawn Cox</a></dt><dd class="address">900 N. Belnord Ave<br />Baltimore, MD 21205</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on July 26, 2011</dd><dd>Victim died at Harbor Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[76] = new Array(39.32804600000, -76.56231500000, icon_homicide_shooting, 'p1140', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1140/michael-jones">Michael Jones</a></dt><dd class="address">4300 Nicholas Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 27 years old</dd><dd>Found on July 26, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>One of three bodies found in burning home; police say victims were shot first.</p></dd></dl>');
+						newpoints[77] = new Array(39.32804600000, -76.56231500000, icon_homicide_shooting, 'p1141', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1141/billy-lovitt">Billy Lovitt</a></dt><dd class="address">4300 Nicholas Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 58 years old</dd><dd>Found on July 26, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>One of three bodies found in burning home. Police say victims were shot first.</p></dd></dl>');
+						newpoints[78] = new Array(39.32804600000, -76.56231500000, icon_homicide_shooting, 'p1142', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1142/tanyika-gibbs">Tanyika Gibbs</a></dt><dd class="address">4300 Nicholas Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: female<br />Age: 37 years old</dd><dd>Found on July 26, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>One of three bodies found in burning home. Police say victims were shot first.</p></dd></dl>');
+						newpoints[79] = new Array(39.31672010000, -76.60846860000, icon_homicide_other, 'p1143', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1143/dwayne-hawkins">Dwayne Hawkins</a></dt><dd class="address">600 Cokesbury Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on July 25, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Other</dd><dd class="popup-note"><p>Hawkins died June 13, 2008 in a fire. In March, police received new information that he was killed; this date reflects...</dd></dl>');
+						newpoints[80] = new Array(39.29773720000, -76.64290870000, icon_homicide_stabbing, 'p1138', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1138/marvin-hayes">Marvin Hayes</a></dt><dd class="address">800 N Gilmor St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on July 20, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[81] = new Array(39.30998100000, -76.65436500000, icon_homicide_shooting, 'p1136', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1136/">Name not yet released</a></dt><dd class="address">1900 Bentalou St<br />Baltimore, MD 21216</dd><dd>Race: Unknown<br />Gender: male<br />Age: 25 years old</dd><dd>Found on July 19, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[82] = new Array(39.28116900000, -76.63392900000, icon_homicide_shooting, 'p1135', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1135/rasheed-abdullah">Rasheed Abdullah</a></dt><dd class="address">1200 Ward St<br />Baltimore, MD 21230</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on July 17, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[83] = new Array(39.29938470000, -76.59626680000, icon_homicide_shooting, 'p1134', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1134/rodney-johnson">Rodney Johnson</a></dt><dd class="address">800 N Bond St<br />Baltimore, MD 21205</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on July 16, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[84] = new Array(39.28823950000, -76.65926700000, icon_homicide_shooting, 'p1133', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1133/david-mckoy">David McKoy</a></dt><dd class="address">1 N Franklintown Rd<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on July 15, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[85] = new Array(39.30877790000, -76.65150600000, icon_homicide_shooting, 'p1132', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1132/jawan-weeden">Jawan Weeden</a></dt><dd class="address">1800 N. Pulaski St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on July 14, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Weeden was shot on July 12, and died on this date.&nbsp;</p></dd></dl>');
+						newpoints[86] = new Array(39.31399200000, -76.60761590000, icon_homicide_shooting, 'p1137', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1137/omar-richardson">Omar Richardson</a></dt><dd class="address">2100 Homewood Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on July 14, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[87] = new Array(39.29505960000, -76.57854620000, icon_homicide_bluntforce, 'p1131', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1131/patsy-person">Patsy Person</a></dt><dd class="address">200 N Belnord Ave<br />Baltimore, MD 21224</dd><dd>Race: Black<br />Gender: female<br />Age: 43 years old</dd><dd>Found on July 10, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Blunt Force</dd></dl>');
+						newpoints[88] = new Array(39.29893680000, -76.59719190000, icon_homicide_shooting, 'p1129', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1129/jerel-mcfadden">Jerel McFadden</a></dt><dd class="address">1500 Lester Morton Ct<br />Baltimore, MD 21205</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on July 10, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[89] = new Array(39.32098250000, -76.59409020000, icon_homicide_stabbing, 'p1130', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1130/richard-mills">Richard Mills</a></dt><dd class="address">1700 Gorsuch Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 46 years old</dd><dd>Found on July 10, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Found seated in a pickup truck</p></dd></dl>');
+						newpoints[90] = new Array(39.29066330000, -76.61522780000, icon_homicide_stabbing, 'p1128', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1128/tremon-fields">Tremon Fields</a></dt><dd class="address">100 N. Charles St<br />Baltimore, MD 21202</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on July  9, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Police say two groups of people got into fight; victim was stabbed in the leg</p></dd></dl>');
+						newpoints[91] = new Array(39.29536100000, -76.67893500000, icon_homicide_shooting, 'p1127', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1127/sterling-kelly">Sterling Kelly</a></dt><dd class="address">3700 Harlem Ave<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on July  5, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Kelly was shot and gravely injured on June 21. This date reflects the date he was added to the city\'s homicide count,...</dd></dl>');
+						newpoints[92] = new Array(39.28514050000, -76.60393320000, icon_homicide_stabbing, 'p1126', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1126/joseph-calo">Joseph Calo</a></dt><dd class="address">700 Eastern Ave<br />Baltimore, MD 21202</dd><dd>Race: White<br />Gender: male<br />Age: 26 years old</dd><dd>Found on July  4, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Stabbing occurred after Inner Harbor July 4th fireworks display</p></dd></dl>');
+						newpoints[93] = new Array(39.28118300000, -76.63641500000, icon_homicide_shooting, 'p1125', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1125/james-lofton">James Lofton</a></dt><dd class="address">1100 S. Carey St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on July  2, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot on 7/1, died at 3 pm on this date</p></dd></dl>');
+						newpoints[94] = new Array(39.34960070000, -76.59371150000, icon_homicide_shooting, 'p1124', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1124/william-daughtry-iii">William Daughtry III</a></dt><dd class="address">1400 Stonewood Rd<br />Baltimore, MD 21239</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on July  1, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[95] = new Array(39.26850620000, -76.65037930000, icon_homicide_shooting, 'p1123', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1123/omar-johnson">Omar Johnson</a></dt><dd class="address">1900 Breitwert Ave<br />Baltimore, MD 21230</dd><dd>Race: Black<br />Gender: male<br />Age: 16 years old</dd><dd>Found on June 29, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[96] = new Array(39.30361010000, -76.63054420000, icon_homicide_shooting, 'p1122', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1122/christopher-samuel">Christopher Samuel</a></dt><dd class="address">500 Mosher St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on June 28, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[97] = new Array(39.31499700000, -76.56815200000, icon_homicide_shooting, 'p1121', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1121/chong-wan-yim">Chong Wan Yim</a></dt><dd class="address">3900 Erdman Ave<br />Baltimore, MD 21213</dd><dd>Race: Asian<br />Gender: male<br />Age: 55 years old</dd><dd>Found on June 28, 2011</dd><dd>Victim died at Johns Hopkins Bayview Medical Center </dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot while making delivery at shopping plaza</p></dd></dl>');
+						newpoints[98] = new Array(39.29188100000, -76.57114360000, icon_homicide_stabbing, 'p1120', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1120/brittany-devone">Brittany Devone</a></dt><dd class="address">3200 Leverton Ave<br />Baltimore, MD 21224</dd><dd>Race: Black<br />Gender: female<br />Age: 22 years old</dd><dd>Found on June 27, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Police arrest Jose Villatoro at scene</p></dd></dl>');
+						newpoints[99] = new Array(39.35665190000, -76.56967310000, icon_homicide_shooting, 'p1119', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1119/andre-womack">Andre Womack</a></dt><dd class="address">5500 Grindon Ave<br />Baltimore, MD 21214</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on June 22, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[100] = new Array(39.34265500000, -76.66326100000, icon_homicide_shooting, 'p1118', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1118/anthony-carr">Anthony Carr</a></dt><dd class="address">2900 Edgecombe Cir S<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 52 years old</dd><dd>Found on June 20, 2011</dd><dd>Victim died at Sinai Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot while sitting on porch after returning home from work.&nbsp;</p></dd></dl>');
+						newpoints[101] = new Array(39.29561110000, -76.66144900000, icon_homicide_shooting, 'p1117', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1117/troy-fennell">Troy Fennell</a></dt><dd class="address">700 Ashburton St<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 39 years old</dd><dd>Found on June 17, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[102] = new Array(39.29287700000, -76.67432000000, icon_homicide_shooting, 'p1116', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1116/charles-lassane">Charles Lassane</a></dt><dd class="address">500 Denison St<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 55 years old</dd><dd>Found on June 16, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>One of six victims after gunman opens fire on porch</p></dd></dl>');
+						newpoints[103] = new Array(39.33811090000, -76.60754370000, icon_homicide_shooting, 'p1115', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1115/angelo-winston">Angelo Winston</a></dt><dd class="address">600 Dumbarton Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 26 years old</dd><dd>Found on June 14, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot while walking past vehicle</p></dd></dl>');
+						newpoints[104] = new Array(39.31637800000, -76.60977400000, icon_homicide_shooting, 'p1114', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1114/henry-mills">Henry Mills</a></dt><dd class="address">2400 Greenmount Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 40 years old</dd><dd>Found on June 14, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[105] = new Array(39.30834400000, -76.66625400000, icon_homicide_shooting, 'p1113', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1113/gary-gibson">Gary Gibson</a></dt><dd class="address">2900 Westwood Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on June 12, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[106] = new Array(39.33880800000, -76.66163200000, icon_homicide_shooting, 'p1112', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1112/roy-murray">Roy Murray</a></dt><dd class="address">2600 Park Heights Terrace<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on June 12, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting; a woman was also shot in the stomach</p></dd></dl>');
+						newpoints[107] = new Array(39.28864800000, -76.64115090000, icon_homicide_shooting, 'p1111', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1111/james-wright">James Wright</a></dt><dd class="address">1500 W. Baltimore St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on June 11, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[108] = new Array(39.34992800000, -76.67235800000, icon_homicide_shooting, 'p1110', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1110/chad-anderson">Chad Anderson</a></dt><dd class="address">3000 Spaulding Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 26 years old</dd><dd>Found on June 10, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[109] = new Array(39.36706900000, -76.57140820000, icon_homicide_shooting, 'p1109', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1109/durran-banks">Durran Banks</a></dt><dd class="address">2200 Fleetwood Ave<br />Baltimore, MD 21214</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on June  3, 2011</dd><dd>Victim died at Johns Hopkins Bayview Medical Center </dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[110] = new Array(39.33466900000, -76.53700300000, icon_homicide_stabbing, 'p1106', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1106/john-kelly">John Kelly</a></dt><dd class="address">5800 Moores Run Ct<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on June  1, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Body found on fire.&nbsp;</p></dd></dl>');
+						newpoints[111] = new Array(39.30137650000, -76.60726170000, icon_homicide_shooting, 'p1105', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1105/maurice-gary">Maurice Gary</a></dt><dd class="address">700 E. Eager St<br />Baltimore, MD 21202</dd><dd>Race: Black<br />Gender: male<br />Age: 35 years old</dd><dd>Found on May 31, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[112] = new Array(39.29269600000, -76.56925900000, icon_homicide_shooting, 'p1104', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1104/payton-rivers">Payton Rivers</a></dt><dd class="address">3400 E. Baltimore St<br />Baltimore, MD 21224</dd><dd>Race: Black<br />Gender: male<br />Age: 34 years old</dd><dd>Found on May 31, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[113] = new Array(39.31345500000, -76.68294200000, icon_homicide_shooting, 'p1103', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1103/lois-smyth">Lois Smyth</a></dt><dd class="address">3900 Windsor Mill Road<br />Baltimore, MD 21216</dd><dd>Race: White<br />Gender: female<br />Age: 40 years old</dd><dd>Found on May 29, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Body found by jogger on Gwynns Falls Trail.&nbsp;</p></dd></dl>');
+						newpoints[114] = new Array(39.33094700000, -76.69315700000, icon_homicide_shooting, 'p1102', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1102/fareed-abdullah">Fareed Abdullah</a></dt><dd class="address">4500 Liberty Heights Ave<br />Baltimore, MD 21207</dd><dd>Race: Black<br />Gender: male<br />Age: 28 years old</dd><dd>Found on May 28, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Victim was shot while sitting in his vehicle, then sped off and struck a pedestrian, who suffered non-life-threatening...</dd></dl>');
+						newpoints[115] = new Array(39.31532650000, -76.59364540000, icon_homicide_shooting, 'p1101', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1101/sean-johnson">Sean Johnson</a></dt><dd class="address">1700 Cliftview Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 12 years old</dd><dd>Found on May 26, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Sean was among four young people injured in a shooting May 24 as they watched a basketball game on TV from a porch....</dd></dl>');
+						newpoints[116] = new Array(39.28095950000, -76.63293030000, icon_homicide_stabbing, 'p1108', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1108/kevin-jones">Kevin Jones</a></dt><dd class="address">1200 W. Ostend St<br />Baltimore, MD 21230</dd><dd>Race: Black<br />Gender: male<br />Age: 57 years old</dd><dd>Found on May 26, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[117] = new Array(39.30225810000, -76.59571100000, icon_homicide_shooting, 'p1107', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1107/anthony-sherman">Anthony Sherman</a></dt><dd class="address">1600 Ward Ct<br />Baltimore, MD 21205</dd><dd>Race: Black<br />Gender: male<br />Age: 27 years old</dd><dd>Found on May 26, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Sherman was shot on 5/25 and died on this date.&nbsp;</p></dd></dl>');
+						newpoints[118] = new Array(39.30550900000, -76.64817700000, icon_homicide_shooting, 'p1100', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1100/donte-larkins">Donte Larkins</a></dt><dd class="address">1500 N Monroe St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 33 years old</dd><dd>Found on May 25, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[119] = new Array(39.29436370000, -76.66855760000, icon_homicide_stabbing, 'p1099', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1099/dashawn-brown">Dashawn Brown</a></dt><dd class="address">3100 Edmondson Ave<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 17 years old</dd><dd>Found on May 22, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[120] = new Array(39.30675900000, -76.64657200000, icon_homicide_stabbing, 'p1098', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1098/jalil-al-salim">Jalil Al-Salim</a></dt><dd class="address">1600 N Fulton Ave<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 50 years old</dd><dd>Found on May 21, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[121] = new Array(39.23003200000, -76.59871300000, icon_homicide_shooting, 'p1097', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1097/marcus-nickens-jr">Marcus Nickens Jr.</a></dt><dd class="address">4100 10th St<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 19 years old</dd><dd>Found on May 19, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[122] = new Array(39.34838730000, -76.67475080000, icon_homicide_shooting, 'p1096', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1096/raymond-young-jr">Raymond Young Jr.</a></dt><dd class="address">3200 Spaulding Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on May 19, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[123] = new Array(39.34506700000, -76.59735400000, icon_homicide_shooting, 'p1095', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1095/dawaun-anderson">Dawaun Anderson</a></dt><dd class="address">4500 Marble Hall Rd<br />Baltimore, MD 21239</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on May 14, 2011</dd><dd>Victim died at Johns Hopkins Bayview Medical Center </dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[124] = new Array(39.29057300000, -76.62142600000, icon_homicide_shooting, 'p1094', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1094/willie-elliott">Willie Elliott</a></dt><dd class="address">100 N Eutaw St<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on May 11, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[125] = new Array(39.34742900000, -76.59841000000, icon_homicide_stabbing, 'p1093', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1093/darian-kess">Darian Kess</a></dt><dd class="address">1200 Linworth Ave<br />Baltimore, MD 21239</dd><dd>Race: Black<br />Gender: male<br />Age: 27 years old</dd><dd>Found on May  3, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Kess was stabbed in the neck during a robbery by three men who followed him inside of his apartment. He died May 2 from...</dd></dl>');
+						newpoints[126] = new Array(39.29039830000, -76.59383020000, icon_homicide_stabbing, 'p1092', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1092/gilberto-gonzalez">Gilberto Gonzalez</a></dt><dd class="address">1700 E. Lombard St<br />Baltimore, MD 21231</dd><dd>Race: Hispanic<br />Gender: male<br />Age: 22 years old</dd><dd>Found on April 29, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[127] = new Array(39.31281300000, -76.58776700000, icon_homicide_shooting, 'p1088', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1088/kareem-randall">Kareem Randall</a></dt><dd class="address">1900 N. Collington Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on April 28, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[128] = new Array(39.31281300000, -76.58776700000, icon_homicide_shooting, 'p1091', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1091/alex-venable">Alex Venable</a></dt><dd class="address">1900 N. Collington Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 26 years old</dd><dd>Found on April 28, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Triple shooting</p></dd></dl>');
+						newpoints[129] = new Array(39.28862700000, -76.64670200000, icon_homicide_asphyxiation, 'p1089', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1089/elmore-rembert">Elmore Rembert</a></dt><dd class="address">1 N. Monroe St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 49 years old</dd><dd>Found on April 27, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Asphyxiation</dd><dd class="popup-note"><p>Body was found when firefighters responded to extinguish a blaze in a vacant home. The body was found smoldering, and...</dd></dl>');
+						newpoints[130] = new Array(39.23650600000, -76.60427700000, icon_homicide_shooting, 'p1087', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1087/jason-willis">Jason Willis</a></dt><dd class="address">3600 5th St<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on April 26, 2011</dd><dd>Victim died at Harbor Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[131] = new Array(39.30867600000, -76.65434700000, icon_homicide_shooting, 'p1086', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1086/john-atkins">John Atkins</a></dt><dd class="address">1800 N. Bentalou St<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 43 years old</dd><dd>Found on April 25, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[132] = new Array(39.29922640000, -76.68632450000, icon_homicide_shooting, 'p1081', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1081/steven-white">Steven White</a></dt><dd class="address">4200 Rokeby Rd<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on April 24, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Two men found shot in vehicle</p></dd></dl>');
+						newpoints[133] = new Array(39.29922640000, -76.68632450000, icon_homicide_shooting, 'p1082', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1082/damon-griffin">Damon Griffin</a></dt><dd class="address">4200 Rokeby Rd<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on April 24, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Two men found shot in vehicle</p></dd></dl>');
+						newpoints[134] = new Array(39.28446000000, -76.69382800000, icon_homicide_shooting, 'p1080', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1080/isaac-stevens">Isaac Stevens</a></dt><dd class="address">4700 Sayer Ave<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on April 24, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[135] = new Array(39.29434200000, -76.63874900000, icon_homicide_stabbing, 'p1084', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1084/tevon-allen">Tevon Allen</a></dt><dd class="address">500 N Carey St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on April 23, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Stabbed inside restaurant</p></dd></dl>');
+						newpoints[136] = new Array(39.29682050000, -76.64005990000, icon_homicide_shooting, 'p1083', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1083/brandon-littlejohn">Brandon Littlejohn</a></dt><dd class="address">700 N Calhoun St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on April 23, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[137] = new Array(39.32050600000, -76.59455100000, icon_homicide_shooting, 'p1085', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1085/william-cann">William Cann</a></dt><dd class="address">1700 Homestead St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 46 years old</dd><dd>Found on April 22, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found in alley</p></dd></dl>');
+						newpoints[138] = new Array(39.29069590000, -76.61812900000, icon_homicide_shooting, 'p1079', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1079/edward-jones">Edward Jones</a></dt><dd class="address">200 W. Fayette St<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 50 years old</dd><dd>Found on April 22, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[139] = new Array(39.28405440000, -76.61503850000, icon_homicide_shooting, 'p1078', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1078/keith-cooper">Keith Cooper</a></dt><dd class="address">1 W Conway St<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 47 years old</dd><dd>Found on April 21, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found dead in an apartment on the 14th floor of the Hanover Square building for the elderly and disabled.&nbsp;</p></dd></dl>');
+						newpoints[140] = new Array(39.31734500000, -76.60768700000, icon_homicide_shooting, 'p1077', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1077/julian-turner">Julian Turner</a></dt><dd class="address">600 Barlett Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 19 years old</dd><dd>Found on April 20, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[141] = new Array(39.35334370000, -76.70601470000, icon_homicide_asphyxiation, 'p1287', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1287/phylicia-barnes">Phylicia Barnes</a></dt><dd class="address">6500 Eberle Dr<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: female<br />Age: 16 years old</dd><dd>Found on April 20, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Asphyxiation</dd><dd class="popup-note"><p>Phylicia Barnes went missing from her sister\'s apartment on Dec. 28, 2010, and was found dead on April 20, 2011...</dd></dl>');
+						newpoints[142] = new Array(39.29438820000, -76.63409910000, icon_homicide_shooting, 'p1076', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1076/edward-auston">Edward Auston</a></dt><dd class="address">500 N Schroeder St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on April 19, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[143] = new Array(39.29466780000, -76.57422680000, icon_homicide_shooting, 'p1075', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1075/donis-lopez">Donis Lopez</a></dt><dd class="address">500 N. Decker Ave<br />Baltimore, MD 21224</dd><dd>Race: Hispanic<br />Gender: male<br />Age: 26 years old</dd><dd>Found on April 16, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[144] = new Array(39.31813600000, -76.69086800000, icon_homicide_shooting, 'p1074', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1074/chantel-ford">Chantel Ford</a></dt><dd class="address">4500 Westchester Rd<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: female<br />Age: 24 years old</dd><dd>Found on April 13, 2011</dd><dd>Victim died at Sinai Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[145] = new Array(39.30817400000, -76.59357700000, icon_homicide_shooting, 'p1073', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1073/isiah-callaway">Isiah Callaway</a></dt><dd class="address">1700 Crystal Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 19 years old</dd><dd>Found on April 12, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Found unresponsive in a vehicle, bleeding from head</p></dd></dl>');
+						newpoints[146] = new Array(39.23658100000, -76.61089600000, icon_homicide_stabbing, 'p1072', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1072/antonio-miranda">Antonio Miranda</a></dt><dd class="address">3800 S. Hanover St<br />Baltimore, MD 21225</dd><dd>Race: Hispanic<br />Gender: male<br />Age: 43 years old</dd><dd>Found on April 11, 2011</dd><dd>Victim died at Harbor Hospital</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[147] = new Array(39.29312600000, -76.61831100000, icon_homicide_shooting, 'p1071', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1071/dwight-taylor">Dwight Taylor</a></dt><dd class="address">200 W. Saratoga St<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on April  9, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot in a barbershop</p></dd></dl>');
+						newpoints[148] = new Array(39.31993000000, -76.54937800000, icon_homicide_stabbing, 'p1070', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1070/james-evans">James Evans</a></dt><dd class="address">4900 Bowland Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on April  9, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[149] = new Array(39.31184090000, -76.62698670000, icon_homicide_shooting, 'p1069', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1069/keenya-jordan">Keenya Jordan</a></dt><dd class="address">600 Lennox st<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: female<br />Age: 32 years old</dd><dd>Found on April  6, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[150] = new Array(39.32118100000, -76.67504500000, icon_homicide_shooting, 'p1067', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1067/christopher-bullock">Christopher Bullock</a></dt><dd class="address">3400 Powhatan Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on April  5, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[151] = new Array(39.29276460000, -76.66302040000, icon_homicide_shooting, 'p1068', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1068/roosevelt-tillman">Roosevelt Tillman</a></dt><dd class="address">2800 Mulberry St<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 20 years old</dd><dd>Found on April  5, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>One of two men shot while sitting in a car.</p></dd></dl>');
+						newpoints[152] = new Array(39.29247580000, -76.61117460000, icon_homicide_stabbing, 'p1066', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1066/charles-johnson">Charles Johnson</a></dt><dd class="address">300 Guilford St<br />Baltimore, MD 21202</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on April  2, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>One of four people stabbed at the downtown club, Bourbon Street</p></dd></dl>');
+						newpoints[153] = new Array(39.30250320000, -76.63898170000, icon_homicide_shooting, 'p1065', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1065/derek-jones">Derek Jones</a></dt><dd class="address">1300 Winchester St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on March 31, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[154] = new Array(39.31624100000, -76.54262000000, icon_homicide_shooting, 'p1064', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1064/tyrone-slay">Tyrone Slay</a></dt><dd class="address">6000 Moravia Park Dr<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on March 31, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[155] = new Array(39.28352790000, -76.62700800000, icon_homicide_shooting, 'p1063', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1063/murrell-hearns">Murrell Hearns</a></dt><dd class="address">700 Washington Blvd<br />Baltimore, MD 21230</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on March 30, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot in business parking lot</p></dd></dl>');
+						newpoints[156] = new Array(39.31889690000, -76.62154860000, icon_homicide_stabbing, 'p1061', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1061/jhoma-blackwell">Jhoma Blackwell</a></dt><dd class="address">2600 Huntingdon Ave<br />Baltimore, MD 21211</dd><dd>Race: Black<br />Gender: female<br />Age: 18 years old</dd><dd>Found on March 29, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[157] = new Array(39.32390120000, -76.54078350000, icon_homicide_shooting, 'p1062', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1062/durell-roach">Durell Roach</a></dt><dd class="address">5400 Sinclair Lane<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on March 29, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[158] = new Array(39.29579500000, -76.63434500000, icon_homicide_shooting, 'p1060', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1060/gregory-davenport">Gregory Davenport</a></dt><dd class="address">1000 Edmondson Ave<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 27 years old</dd><dd>Found on March 29, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[159] = new Array(39.31718300000, -76.57815100000, icon_homicide_shooting, 'p1059', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1059/steven-oglesby">Steven Oglesby</a></dt><dd class="address">3200 Elmley Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 17 years old</dd><dd>Found on March 27, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Two 17 year olds were shot while sitting in a vehicle, police said. The other victim suffered non-life-threatening...</dd></dl>');
+						newpoints[160] = new Array(39.31355700000, -76.61131700000, icon_homicide_stabbing, 'p1058', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1058/reginald-wragg">Reginald Wragg</a></dt><dd class="address">2100 Barclay St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 46 years old</dd><dd>Found on March 25, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Found in an alley</p></dd></dl>');
+						newpoints[161] = new Array(39.31171890000, -76.60932300000, icon_homicide_stabbing, 'p1057', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1057/andre-drummond">Andre Drummond</a></dt><dd class="address">500 E. North Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 48 years old</dd><dd>Found on March 23, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Drummond\'s body was found inside of a vacant home after police received an anonymous tip.</p></dd></dl>');
+						newpoints[162] = new Array(39.29354640000, -76.69176220000, icon_homicide_stabbing, 'p1055', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1055/david-mclaughlin-jr">David McLaughlin Jr.</a></dt><dd class="address">4500 Edmondson Ave<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 24 years old</dd><dd>Found on March 20, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Jumped at a gas station.</p></dd></dl>');
+						newpoints[163] = new Array(39.30754590000, -76.62728790000, icon_homicide_shooting, 'p1054', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1054/angelo-fitzgerald">Angelo Fitzgerald</a></dt><dd class="address">300 McMechen St<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on March 19, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Triple shooting</p></dd></dl>');
+						newpoints[164] = new Array(39.28095950000, -76.63293030000, icon_homicide_bluntforce, 'p1056', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1056/darshewn-freeman">Darshewn Freeman</a></dt><dd class="address">1200 W. Ostend St<br />Baltimore, MD 21230</dd><dd>Race: Black<br />Gender: male<br />Age: 44 years old</dd><dd>Found on March 18, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Blunt Force</dd><dd class="popup-note"><p>Found bleeding in rear of block. Police investigating as a homicide.&nbsp;</p></dd></dl>');
+						newpoints[165] = new Array(39.31244490000, -76.64566000000, icon_homicide_shooting, 'p1053', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1053/brandon-carter">Brandon Carter</a></dt><dd class="address">2700 Pennsylvania Ave<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on March 17, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting at carryout</p></dd></dl>');
+						newpoints[166] = new Array(39.32579100000, -76.60230400000, icon_homicide_shooting, 'p1052', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1052/tanise-ervin">Tanise Ervin</a></dt><dd class="address">1100 Gorsuch Ave<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: female<br />Age: 19 years old</dd><dd>Found on March 12, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Triple shooting</p></dd></dl>');
+						newpoints[167] = new Array(39.34369230000, -76.68046990000, icon_homicide_stabbing, 'p1050', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1050/ronald-gibbs">Ronald Gibbs</a></dt><dd class="address">5000 Nelson Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 17 years old</dd><dd>Found on March  6, 2011</dd><dd>Victim died at Sinai Hospital</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Detectives believe the victim and a 20-year-old woman got into an argument with a man, who stabbed both of them. The...</dd></dl>');
+						newpoints[168] = new Array(39.28876200000, -76.67278300000, icon_homicide_shooting, 'p1049', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1049/paul-simons-iii">Paul Simons III</a></dt><dd class="address">200 N. Hilton St<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on March  5, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Preliminary investigation has revealed that just after 9pm, three armed suspects entered a home in the 200 block of N...</dd></dl>');
+						newpoints[169] = new Array(39.25930200000, -76.64534400000, icon_homicide_other, 'p1048', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1048/george-marshall">George Marshall</a></dt><dd class="address">2700 Hollins Ferry Road<br />Baltimore, MD 21230</dd><dd>Race: White<br />Gender: male<br />Age: 57 years old</dd><dd>Found on March  5, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Other</dd><dd class="popup-note"><p>Marshall was struck and killed by a vehicle being driven by a man attempting to flee after being caught trying to break...</dd></dl>');
+						newpoints[170] = new Array(39.29814900000, -76.70987400000, icon_homicide_stabbing, 'p1051', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1051/charles-hopson">Charles Hopson</a></dt><dd class="address">1100 Cooks Lane<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on March  5, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Hopson was stabbed on March 31, 2010 in a domestic related incident. He died on March 5, 2011, and his death is...</dd></dl>');
+						newpoints[171] = new Array(39.31145890000, -76.60945990000, icon_homicide_shooting, 'p1047', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1047/james-fields-jr">James Fields Jr</a></dt><dd class="address">1901 Greenmount Ave<br />Baltimore, MD 21202</dd><dd>Race: Black<br />Gender: male<br />Age: 47 years old</dd><dd>Found on March  3, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Fields was shot in 1992 outside a carryout. He survived, but died in January as a result of complications from his...</dd></dl>');
+						newpoints[172] = new Array(39.31164600000, -76.66432200000, icon_homicide_stabbing, 'p1046', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1046/edgar-waylan-wilson">Edgar Waylan Wilson</a></dt><dd class="address">2800 Clifton Ave<br />Baltimore, MD 21216</dd><dd>Race: Black<br />Gender: male<br />Age: 62 years old</dd><dd>Found on February 27, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Grandson has been charged with first-degree murder.&nbsp;</p></dd></dl>');
+						newpoints[173] = new Array(39.31537500000, -76.59555300000, icon_homicide_shooting, 'p1044', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1044/mark-saunders">Mark Saunders</a></dt><dd class="address">1600 Cliftview Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 23 years old</dd><dd>Found on February 20, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting;&nbsp;</p></dd></dl>');
+						newpoints[174] = new Array(39.34368800000, -76.67171400000, icon_homicide_asphyxiation, 'p1045', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1045/anthony-trent">Anthony Trent</a></dt><dd class="address">3300 Virginia Ave<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 25 years old</dd><dd>Found on February 19, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Asphyxiation</dd><dd><a href="http://weblogs.baltimoresun.com/news/crime/blog/2011/02/transgender_victim_struggled_f.html">Read the article</a></dd><dd class="popup-note"><p>Victim was a transgendered woman found in the basement of a vacant home.&nbsp;</p></dd></dl>');
+						newpoints[175] = new Array(39.31149710000, -76.60950730000, icon_homicide_stabbing, 'p1043', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1043/joshua-mathews">Joshua Mathews</a></dt><dd class="address">1900 Greenmount Ave<br />Baltimore, MD 21202</dd><dd>Race: Black<br />Gender: male<br />Age: 45 years old</dd><dd>Found on February 17, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd></dl>');
+						newpoints[176] = new Array(39.32632900000, -76.59338900000, icon_homicide_shooting, 'p1042', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1042/martez-hall">Martez Hall</a></dt><dd class="address">1600 E 31st St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on February 16, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[177] = new Array(39.28145300000, -76.63041600000, icon_homicide_stabbing, 'p1041', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1041/steven-williams">Steven Williams</a></dt><dd class="address">1100 W. Cross St<br />Baltimore, MD 21230</dd><dd>Race: Black<br />Gender: male<br />Age: 53 years old</dd><dd>Found on February 15, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>Funeral home page:&nbsp;<a...</dd></dl>');
+						newpoints[178] = new Array(39.33464980000, -76.66278120000, icon_homicide_shooting, 'p1040', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1040/jose-estrella">Jose Estrella</a></dt><dd class="address">4000 Park Heights<br />Baltimore, MD 21215</dd><dd>Race: Black<br />Gender: male<br />Age: 19 years old</dd><dd>Found on February 11, 2011</dd><dd>Victim died at Sinai Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Convenience store parking lot</p></dd></dl>');
+						newpoints[179] = new Array(39.35927600000, -76.54387800000, icon_homicide_shooting, 'p1039', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1039/isaiah-mcfadden">Isaiah McFadden</a></dt><dd class="address">6600 Alta Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on February  8, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[180] = new Array(39.32154180000, -76.59367400000, icon_homicide_shooting, 'p1038', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1038/craig-manuel">Craig Manuel</a></dt><dd class="address">2700 Polk St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 19 years old</dd><dd>Found on February  7, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[181] = new Array(39.29780800000, -76.68644500000, icon_homicide_shooting, 'p1037', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1037/warren-wilmer">Warren Wilmer</a></dt><dd class="address">900 N. Woodington Rd<br />Baltimore, MD 21229</dd><dd>Race: Black<br />Gender: male<br />Age: 36 years old</dd><dd>Found on February  2, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[182] = new Array(39.31844700000, -76.54844900000, icon_homicide_shooting, 'p1036', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1036/jeffrey-purnell">Jeffrey Purnell</a></dt><dd class="address">5700 Eastbury Ave<br />Baltimore, MD 21206</dd><dd>Race: Black<br />Gender: male<br />Age: 51 years old</dd><dd>Found on January 30, 2011</dd><dd>Victim died at Johns Hopkins Bayview Medical Center </dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Victim was found in a vehicle</p></dd></dl>');
+						newpoints[183] = new Array(39.28601610000, -76.62927180000, icon_homicide_shooting, 'p1035', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1035/raynard-benjamin">Raynard Benjamin</a></dt><dd class="address">800 W Pratt St<br />Baltimore, MD 21201</dd><dd>Race: Black<br />Gender: male<br />Age: 30 years old</dd><dd>Found on January 29, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[184] = new Array(39.28211570000, -76.64488280000, icon_homicide_shooting, 'p1034', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1034/damon-gilmore">Damon Gilmore</a></dt><dd class="address">500 S. Fulton Ave<br />Baltimore, MD 21223</dd><dd>Race: Black<br />Gender: male<br />Age: 31 years old</dd><dd>Found on January 24, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[185] = new Array(39.29873900000, -76.59841400000, icon_homicide_shooting, 'p1033', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1033/antonio-lamont-lee">Antonio Lamont Lee</a></dt><dd class="address">1400 E Monument St<br />Baltimore, MD 21205</dd><dd>Race: Black<br />Gender: male<br />Age: 35 years old</dd><dd>Found on January 23, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Lee was shot after a white van pulled up to his vehicle at a traffic light and the occupants opened fire, police...</dd></dl>');
+						newpoints[186] = new Array(39.25001300000, -76.61934590000, icon_homicide_shooting, 'p1032', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1032/harry-hicks">Harry Hicks</a></dt><dd class="address">400 Swale Ave<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 29 years old</dd><dd>Found on January 22, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Hicks was shot by two men while his wife was loading his daughter into their vehicle, police say.&nbsp;</p></dd></dl>');
+						newpoints[187] = new Array(39.24501350000, -76.62740550000, icon_homicide_shooting, 'p1031', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1031/rhidel-price">Rhidel Price</a></dt><dd class="address">2900 Denham Circle<br />Baltimore, MD 21225</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on January 20, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[188] = new Array(39.29559700000, -76.63739800000, icon_homicide_shooting, 'p1029', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1029/kevin-s-lewis">Kevin S. Lewis</a></dt><dd class="address">600 N Carrollton Ave<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 45 years old</dd><dd>Found on January 10, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[189] = new Array(39.32537000000, -76.58631200000, icon_homicide_shooting, 'p1028', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1028/wendell-woodard">Wendell Woodard</a></dt><dd class="address">3000 Harford Rd<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 26 years old</dd><dd>Found on January 10, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Shot inside residence</p></dd></dl>');
+						newpoints[190] = new Array(39.31749200000, -76.65011190000, icon_homicide_shooting, 'p1026', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1026/willie-davis">Willie Davis</a></dt><dd class="address">1700 Gwynns Falls Pkway<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 26 years old</dd><dd>Found on January  9, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting - victims found in laundry room of apartment complex</p></dd></dl>');
+						newpoints[191] = new Array(39.31716000000, -76.64932390000, icon_homicide_shooting, 'p1027', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1027/marvin-kelly">Marvin Kelly</a></dt><dd class="address">1701 Gwynns Falls Pkway<br />Baltimore, MD 21217</dd><dd>Race: Black<br />Gender: male<br />Age: 22 years old</dd><dd>Found on January  9, 2011</dd><dd>Victim died at Scene</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Double shooting - two people killed in apartment complex laundry room</p></dd></dl>');
+						newpoints[192] = new Array(39.32855200000, -76.61339400000, icon_homicide_shooting, 'p1025', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1025/leon-d-smith">Leon D. Smith</a></dt><dd class="address">300 E. 33rd St<br />Baltimore, MD 21218</dd><dd>Race: Black<br />Gender: male<br />Age: 34 years old</dd><dd>Found on January  9, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd><dd class="popup-note"><p>Smith was found shot several times in a vehicle in a rear alley that empties into Union Memorial Hospital.</p></dd></dl>');
+						newpoints[193] = new Array(39.32569690000, -76.57517430000, icon_homicide_shooting, 'p1030', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1030/deandre-garris">Deandre Garris</a></dt><dd class="address">3500 Woodstock Ave<br />Baltimore, MD 21213</dd><dd>Race: Black<br />Gender: male<br />Age: 34 years old</dd><dd>Found on January  5, 2011</dd><dd>Victim died at Unknown</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[194] = new Array(39.35866900000, -76.57164000000, icon_homicide_shooting, 'p1024', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1024/hezikah-wilson">Hezikah Wilson</a></dt><dd class="address">5600 Plymouth Rd<br />Baltimore, MD 21214</dd><dd>Race: Black<br />Gender: male<br />Age: 38 years old</dd><dd>Found on January  2, 2011</dd><dd>Victim died at Good Samaritan Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[195] = new Array(39.29693400000, -76.57959300000, icon_homicide_shooting, 'p1023', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1023/marquise-hall">Marquise Hall</a></dt><dd class="address">500 N. Lakewood Ave<br />Baltimore, MD 21205</dd><dd>Race: Black<br />Gender: male<br />Age: 16 years old</dd><dd>Found on January  1, 2011</dd><dd>Victim died at Johns Hopkins Hospital</dd><dd>Cause: Shooting</dd></dl>');
+						newpoints[196] = new Array(39.22619100000, -76.58992000000, icon_homicide_stabbing, 'p1022', '<dl><dt><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1022/david-jones">David Jones</a></dt><dd class="address">1500 Hazel St<br />Baltimore, MD 21226</dd><dd>Race: Black<br />Gender: male<br />Age: 21 years old</dd><dd>Found on January  1, 2011</dd><dd>Victim died at Maryland Shock Trauma Center</dd><dd>Cause: Stabbing</dd><dd class="popup-note"><p>One of two men stabbed; surviving victim was 27 years old</p></dd></dl>');
+						
+			var locations =[];
+			for (var i = 0; i < newpoints.length; i++) {
+				var LatLng = new Microsoft.Maps.Location(newpoints[i][0], newpoints[i][1]);
+				locations.push(LatLng);
+				var pushpin = new Microsoft.Maps.Pushpin(LatLng, { icon: newpoints[i][2], height: 20, width: 12});
+				
+				var title = newpoints[i][4].slice(newpoints[i][4].indexOf('<a'), newpoints[i][4].indexOf('</a>') + 4);
+				var description = newpoints[i][4].slice(0, newpoints[i][4].indexOf('<dt>')) + newpoints[i][4].slice(newpoints[i][4].indexOf('</dt>') + 5, newpoints[i][4].length);
+				pushpin.Title = title;
+				pushpin.Description = description;
+				Microsoft.Maps.Events.addHandler(pushpin, 'click', displayInfobox); 
+				pinLayer.push(pushpin);
+			}
+			
+                        
+
+						//set new bounds
+			var options = map.getOptions();
+			options.bounds = new Microsoft.Maps.LocationRect.fromLocations(locations);
+			map.setView(options);
+						
+		}
+			
+		function onViewChangeEnd(e) {
+		    var zoomLevel = map.getZoom(); 
+		    if (zoomLevel > 14) {
+		        precisionWarn();
+		    }
+		}
+		
+         function displayInfobox(e) {
+             if (e.targetType == "pushpin") {
+                 infoboxLayer.clear();
+                 var description = e.target.Description;
+                 var pinInfobox = new Microsoft.Maps.Infobox(e.target.getLocation(), {
+                     width: 300,
+                     height:200,
+                     title: e.target.Title,
+                     description: "<div style='overflow:auto;'>" + e.target.Description + "</div>",
+                     visible: true,
+                     offset: new Microsoft.Maps.Point(0,15)
+                 });
+
+                 infoboxLayer.push(pinInfobox);
+                 var h = pinInfobox.getHeight();
+                 var options = pinInfobox.getOptions();
+                 options.height = h;
+                 pinInfobox.setOptions(options);
+                 //A buffer limit to use to specify the infobox must be away from the edges of the map.
+                 var buffer = 25;
+
+                 var infoboxOffset = pinInfobox.getOffset();
+                 var infoboxAnchor = pinInfobox.getAnchor();
+                 var infoboxLocation = map.tryLocationToPixel(e.target.getLocation(), Microsoft.Maps.PixelReference.control);
+                 var dx = infoboxLocation.x + infoboxOffset.x - infoboxAnchor.x;
+                 var dy = infoboxLocation.y - 25 - infoboxAnchor.y;
+
+                 if (dy < buffer) {	
+                     dy *= -1;
+                     dy += buffer;
+                 } else {
+                     dy = 0;
+                 }
+                 if (dx < buffer) {	
+                     dx *= -1;
+                     dx += buffer;
+                 } else {
+                     dx = map.getWidth() - infoboxLocation.x + infoboxAnchor.x - pinInfobox.getWidth();
+                     if (dx > buffer) {
+                         dx = 0;
+                     } else {
+                         dx -= buffer;
+                     }
+                 }
+                 if (dx != 0 || dy != 0) {
+                     map.setView({ centerOffset: new Microsoft.Maps.Point(dx, dy), center: map.getCenter() });
+                 }
+             }
+			setTimeout(function(){
+				var boxCandidates = jQuery('.Infobox');
+				if(boxCandidates.length > 0){
+					var boxDl = jQuery('.Infobox dl');
+					var boxCandidates = jQuery('.Infobox');
+					var idealheight = boxDl.height() + 80;
+					var actualheight = boxCandidates.height();
+					var change = idealheight - actualheight;
+					boxCandidates.animate({top:'-='+change,height:'+='+change});
+					jQuery('.infobox-stalk').animate({top:'+='+change,position:'relative'});
+				}
+			},75);
+         }
+		 
+
+		function precisionWarn(map){
+			if(window.precisionWarned != true)
+			alert('Reminder: Police disclosures of homicide information are almost always limited to the block level. Markers in fine-detail or street-level zooms are likely to imply precision that is not actually present.');
+			window.precisionWarned = true;
+		}	
+ 
+		var pinDetail = function (index, name, htmlcontent) {
+		    this.index = index;
+		    this.name = name;
+		    this.htmlcontent = htmlcontent;
+		}
+		
+					
+					//]]>
+	</script>
+
+
+<style type="text/css">
+
+#gregbox-outer {
+background: #000000 !important;
+}
+* html #gregbox-content {
+       border: 6px solid #000000 !important;
+}
+</style>
+
+
+
+<script type="text/javascript">
+function preCheckThebaltimoresun100928($)
+{
+     if (document.referrer.search(/facebook.com/) > -1 || 
+        document.referrer.search(/m.facebook.com/) >-1 || 
+        document.referrer.search(/touch.facebook.com/) >-1 || 
+		document.referrer.search(/twitter.com/) >-1 || 
+		document.referrer.search(/t.co/) > -1 || 
+		document.referrer.search(/plus.url.google.com/) > -1 || 
+		document.referrer.search(/pinterest.com/) > -1 ||
+		document.referrer.search(/reddit.com/) > -1 ||
+		document.referrer.search(/fark.com/) > -1 ||
+		document.referrer.search(/tumblr.com/) > -1 ||
+		document.referrer.search(/digg.com/) > -1 ||
+		document.referrer.search(/stumbleupon.com/) > -1 ||
+		document.referrer.search(/hootsuite.com/) > -1 ||
+	
+        document.referrer.search(/linkedin.com/) > -1)
+    {
+        return 0;
+    }
+return 1;
+}
+</script>
+
+
+
+
+
+	
+</head>
+
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+div#downtimenoticewrapper{
+ height:100px; width:100%;
+ overflow:visible;
+}
+div#downtimenoticeyellow{
+ height:100px;
+ width:100%;
+ background-color:#eeee99;
+}
+div#downtimenoticemessage{
+ float:left;
+ width:70%;
+ margin:10px;
+ font-size:24px;
+ color:#555555;
+ min-height:70px;
+}
+div#downtimenoticeclosebox{
+ float:right;
+ width:30px;
+ margin:10px;
+ color:#777777;
+ font-size:20px;
+}
+</style>
+
+	
+	<div id="header">
+		<h1><a href="http://www.baltimoresun.com/"><img src="http://data.baltimoresun.com/bing-maps/homicides/img/baltsun-gen3-small-logo.gif" border="0" alt="baltimoresun.com" /></a></h1>
+		<div class="share">
+        	<!-- start of Share This code -->
+			<!-- JS for the Share This widget -->
+			<script type="text/javascript" src="http://w.sharethis.com/button/sharethis.js#publisher=be578584-6955-4b24-a481-76e3b63e7141&#38;type=website&#38;post_services=email%2Cfacebook%2Ctwi
+tter%2Cdigg%2Cmyspace%2Csms%2Cdelicious%2Cwordpress%2Cstumbleupon%2Creddit%2Clinkedin%2Cblogger%2Ctechnorati&#38;button=false"></script>
+<!-- End JS for the Share This widget -->
+			<br>&nbsp;<br>
+			<a id="ck_sharethis" href="javascript:void(0);"><b></b>
+			<img src="http://data.baltimoresun.com/academic/2011/images/ShareThisIcon.png" width="219" height="36" /></a>
+		
+			<script type="text/javascript">
+			        var shared_object = SHARETHIS.addEntry({
+			        title: document.title,
+			        url: document.location.href
+			});
+
+			shared_object.attachButton(document.getElementById("ck_sharethis"));
+			shared_object.attachChicklet("email", document.getElementById("ck_email"));
+			shared_object.attachChicklet("facebook", document.getElementById("ck_facebook"));
+			shared_object.attachChicklet("twitter", document.getElementById("ck_twitter"));
+			</script>
+			<br>&nbsp;<br>
+
+			<!-- end of Share This code -->
+		</div>
+	</div>
+	
+	<div id="wrapper">	
+		
+		<div id="help">
+	        <h1 class="page-title">Baltimore homicides</h1>
+			<p>Select options from the dropdown lists below and click "Show Results." The map below will display points for each homicide in Baltimore City that meets your search criteria. Click on a point to get details about that homicide.</p>
+			<p class="results"><span style="color: #cf403d; font-weight:bold;">197 homicides fit your search criteria.</span> <em>There have been 28 homicides in 2014 to date.</em></p>
+            
+		</div>
+		
+		<form id="controller" enctype="multipart/form-data" action="/bing-maps/homicides/index.php" method="get">
+			<fieldset>
+				
+				<div class="dropdown timeframe">
+					<label for="range">Time frame:</label>
+					<select name="range" id="range">
+						<option label="Select one" value="none">Select one</option>
+<option label="Past week" value="7">Past week</option>
+<option label="Past 30 days" value="30">Past 30 days</option>
+<option label="Past 3 months" value="90">Past 3 months</option>
+<option label="Past 6 months" value="180">Past 6 months</option>
+<option label="All of 2014" value="2014">All of 2014</option>
+<option label="All of 2013" value="2013">All of 2013</option>
+<option label="All of 2012" value="2012">All of 2012</option>
+<option label="All of 2011" value="2011" selected="selected">All of 2011</option>
+<option label="All of 2010" value="2010">All of 2010</option>
+<option label="All of 2009" value="2009">All of 2009</option>
+<option label="All of 2008" value="2008">All of 2008</option>
+<option label="All of 2007" value="2007">All of 2007</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="district">District:</label>
+					<select id="district" name="district">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="Central District" value="CD">Central District</option>
+<option label="Eastern District" value="ED">Eastern District</option>
+<option label="Northern District" value="ND">Northern District</option>
+<option label="Northeastern District" value="NE">Northeastern District</option>
+<option label="Northwestern District" value="NW">Northwestern District</option>
+<option label="Southern District" value="SD">Southern District</option>
+<option label="Southeastern District" value="SE">Southeastern District</option>
+<option label="Southwestern District" value="SW">Southwestern District</option>
+<option label="Western District" value="WD">Western District</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="zipcode">ZIP code:</label>
+					<select id="zipcode" name="zipcode">
+						<option label="all" value="all" selected="selected">all</option>
+<option label="21201" value="21201">21201</option>
+<option label="21202" value="21202">21202</option>
+<option label="21205" value="21205">21205</option>
+<option label="21206" value="21206">21206</option>
+<option label="21207" value="21207">21207</option>
+<option label="21208" value="21208">21208</option>
+<option label="21209" value="21209">21209</option>
+<option label="21211" value="21211">21211</option>
+<option label="21212" value="21212">21212</option>
+<option label="21213" value="21213">21213</option>
+<option label="21214" value="21214">21214</option>
+<option label="21215" value="21215">21215</option>
+<option label="21216" value="21216">21216</option>
+<option label="21217" value="21217">21217</option>
+<option label="21218" value="21218">21218</option>
+<option label="21222" value="21222">21222</option>
+<option label="21223" value="21223">21223</option>
+<option label="21224" value="21224">21224</option>
+<option label="21225" value="21225">21225</option>
+<option label="21226" value="21226">21226</option>
+<option label="21227" value="21227">21227</option>
+<option label="21229" value="21229">21229</option>
+<option label="21230" value="21230">21230</option>
+<option label="21231" value="21231">21231</option>
+<option label="21234" value="21234">21234</option>
+<option label="21239" value="21239">21239</option>
+<option label="21287" value="21287">21287</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="age">Age:</label>
+					<select id="age" name="age">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="under 18" value="under18">under 18</option>
+<option label="18 to 25" value="18to25">18 to 25</option>
+<option label="26 to 34" value="26to34">26 to 34</option>
+<option label="35 to 50" value="35to50">35 to 50</option>
+<option label="over 50" value="over50">over 50</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="gender">Gender:</label>
+					<select id="gender" name="gender">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="Male" value="male">Male</option>
+<option label="Female" value="female">Female</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="race">Race:</label>
+					<select id="race" name="race">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="White" value="white">White</option>
+<option label="Black" value="black">Black</option>
+<option label="Asian" value="asian">Asian</option>
+<option label="Hispanic" value="hispanic">Hispanic</option>
+<option label="Unknown" value="unknown">Unknown</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="cause">Cause of death:</label>
+					<select id="cause" name="cause">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="Asphyxiation" value="asphyxiation">Asphyxiation</option>
+<option label="Blunt Force" value="bluntforce">Blunt Force</option>
+<option label="Shooting" value="shooting">Shooting</option>
+<option label="Stabbing" value="stabbing">Stabbing</option>
+<option label="Unknown" value="unknown">Unknown</option>
+<option label="Other" value="other">Other</option>
+
+					</select>
+				</div>
+				
+				<div class="dropdown">
+					<label for="article">Article:</label>
+					<select id="article" name="article">
+						<option label="All" value="all" selected="selected">All</option>
+<option label="No" value="no">No</option>
+<option label="Yes" value="yes">Yes</option>
+
+					</select>
+				</div>
+				
+
+				<br><div id="go"><br>
+					<input type="submit" style="width: 205px; font-weight: bold; font-size: 13px; margin:10px 0 0;" value="Show results" name="show_results" />
+					<label id="default"><a href="http://data.baltimoresun.com/bing-maps/homicides/" title="See most recent 30 days, with no other restrictions on results">Default view</a></label>
+				</div>
+				
+			</fieldset>
+		</form>
+		
+				
+		
+		<div id="map"></div>	
+		
+		<dl id="key">
+			<dt>Map key:</dt>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_blue.png" width="12" height="20" alt=" icon" /> = Asphyxiation</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_green.png" width="12" height="20" alt=" icon" /> = Blunt Force</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png" width="12" height="20" alt=" icon" /> = Other</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_red.png" width="12" height="20" alt=" icon" /> = Shooting</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_black.png" width="12" height="20" alt=" icon" /> = Stabbing</dd>
+						<dd><img src="http://data.baltimoresun.com/bing-maps/homicides/img/mm_20_white.png" width="12" height="20" alt=" icon" /> = Unknown</dd>
+					</dl>
+		
+		
+		<div id="chart-section">
+
+			<!-- "previous page" action -->
+			<a class="prevPage browse left" title="Following year"></a>
+			
+			<!-- root element for scrollable -->
+			<div class="scrollable">
+				<!-- root element for the items --> 
+				<div class="items"> 
+					
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2014-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2014-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2013-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2013-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2012-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2012-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2011-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2011-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2010-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/district-pie-2010-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2009-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/charts/district-pie-2009.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2008-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/charts/district-pie-2008.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/cache/monthly-bar-stack-2007-eb4fac8c3bb35d79f3c3a5b7e23fb572.png" />
+											<img src="http://data.baltimoresun.com/bing-maps/homicides/charts/district-pie-2007.png" />
+										
+					
+				</div> 
+
+
+			</div>
+			
+			<!-- "next page" action --> 
+			<a class="nextPage browse right" title="Previous year"></a>
+		</div>
+				
+
+                                <div class="recentvictims"><b style="color:#bbbbbb;">Most recent homicides, ordered by time found: <br style="clear:both;"><br></b><div class="lfrow"><div class="lfdate"><b>Date &amp; time</b></div><div class="lffirst"><b>Victim name</b></div><div class="lfaddress"><b>Address</b></div><div class="lfage"><b>Age</b></div><div class="lfgender"><b>Gender</b></div><div class="lfrace"><b>Race</b></div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1747/">2014-02-05 12:00 AM</a></div><div class="lfname">Tsambikos Diakoloukas</div><div class="lfaddress">400 S Caroline St</div><div class="lfage">79</div><div class="lfgender">male</div><div class="lrace">White</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1745/">2014-01-31 7:30 AM</a></div><div class="lfname">Kimberly Leto</div><div class="lfaddress">400 S. Ellwood Ave</div><div class="lfage">51</div><div class="lfgender">female</div><div class="lrace">White</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1744/">2014-01-30 6:50 PM</a></div><div class="lfname">Allan Foster</div><div class="lfaddress">4100 Walrad St</div><div class="lfage">56</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1742/">2014-01-30 9:50 AM</a></div><div class="lfname">Sheena Gamble</div><div class="lfaddress">1500 Cole St</div><div class="lfage">30</div><div class="lfgender">female</div><div class="lrace">Black</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1743/">2014-01-30 9:50 AM</a></div><div class="lfname">Antonio Foster</div><div class="lfaddress">1500 Cole St</div><div class="lfage">35</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1746/">2014-01-30 12:00 AM</a></div><div class="lfname">Ricky Bailey</div><div class="lfaddress">900 S Clinton St</div><div class="lfage">34</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1741/">2014-01-28 12:30 PM</a></div><div class="lfname">Derrill Crawley</div><div class="lfaddress">5200 Denmore Ave</div><div class="lfage">25</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1740/">2014-01-27 8:30 PM</a></div><div class="lfname">Eric Brown</div><div class="lfaddress">600 E 38th St</div><div class="lfage">19</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow odd "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1739/">2014-01-25 11:35 PM</a></div><div class="lfname">Lavar Crawford</div><div class="lfaddress">1900 E 28th St</div><div class="lfage">16</div><div class="lfgender">male</div><div class="lrace">Black</div></div><div class="lfrow even "><div class="lfdate"><a href="http://data.baltimoresun.com/bing-maps/homicides/victim/1738/">2014-01-25 12:55 AM</a></div><div class="lfname">Kendrick Martin</div><div class="lfaddress">200 N Payson St</div><div class="lfage">41</div><div class="lfgender">male</div><div class="lrace">Black</div></div><br><a style="margin-top:20px 0 0 5px; float:left; font-weight:bold;" href="recenthundred.php">View last hundred homicides</a></div>
+
+		
+		
+				<p id="modified-on"><!-- Data current as of February  5, 2014. --></p>
+				
+	</div><!-- end #wrapper -->
+	
+	<p id="made-by">&copy; 2014 
+		<a href="http://www.baltimoresun.com/">Baltimore Sun Media Group</a>. 
+		
+					Data current as of February  5, 2014.
+				
+		<a href="javascript:na_open_window('credits', 'credits.php', 200, 200, 450, 225, 0, 0, 0, 0, 1);">Credits</a>
+
+
+
+
+
+
+
+<!-- start of Share This code -->
+<!-- JS for the Share This widget -->
+<script type="text/javascript" src="http://w.sharethis.com/button/sharethis.js#publisher=be578584-6955-4b24-a481-76e3b63e7141&#38;type=website&#38;post_services=email%2Cfacebook%2Ctwitter%2Cdigg%2Cmyspace%2Csms%2Cdelicious%2Cwordpress%2Cstumbleupon%2Creddit%2Clinkedin%2Cblogger%2Ctechnorati&#38;button=false"></script>
+<!-- End JS for the Share This widget -->
+<br>&nbsp;<br>
+<a id="ck_sharethis" href="javascript:void(0);"><b></b>
+<img src="http://data.baltimoresun.com/academic/2011/images/ShareThisIcon.png" width="219" height="36" /></a> 
+    
+<script type="text/javascript">
+	var shared_object = SHARETHIS.addEntry({
+	title: document.title,
+	url: document.location.href
+});
+
+shared_object.attachButton(document.getElementById("ck_sharethis"));
+shared_object.attachChicklet("email", document.getElementById("ck_email"));
+shared_object.attachChicklet("facebook", document.getElementById("ck_facebook"));
+shared_object.attachChicklet("twitter", document.getElementById("ck_twitter"));
+</script>
+<br>&nbsp;<br>
+
+<!-- end of Share This code -->
+
+
+
+<script src="http://extras.baltimoresun.com/js/legacy-js-for-homicides-slider/flowplayer.org-1.1.2-jquery.tools.min.js"></script>
+
+
+
+	</p>
+	
+	<script type="text/javascript"> 		
+		$(function() {
+			//initialize scrollable
+			$(".scrollable").scrollable({
+				size: 2,
+				clickable: true,
+				loop: false
+			});
+		});
+	</script>
+	
+	<script language="JavaScript">
+		var s_account = "tribglobal";
+	</script>
+	
+	<!-- SiteCatalyst code version: H.1. Copyright 1997-2005 Omniture, Inc. More info available at http://www.omniture.com -->
+	<script type="text/javascript" src="http://www.baltimoresun.com/hive/javascripts/metrics/s_code_trb.js"></script>
+
+	<script language="JavaScript">
+
+	s.pageName="Homicides Map - Baltimore Sun / news / maryland / crime - Story.";
+	s.prop38="Story";
+	s.eVar21="Story";
+
+	s.server="www.baltimoresun.com";
+	s.channel="Baltimore Sun:news:maryland:crime";
+	s.prop3="";
+	s.prop28="";
+	s.prop32="";
+
+	s.prop36="";
+
+	s.prop37="";
+
+	/* E-commerce Variables */
+	s.events="";
+	s.eVar20="Baltimore Sun";
+
+	s.hier1="Baltimore Sun:news:maryland:crime";
+	s.hier2="news:maryland:crime";
+	s.hier4="news:maryland:crime";
+
+	s.prop44="";
+
+
+	//AD Block Detection
+	//Description: 	Check if any IMG, IFRAME, or SCRIPT elements are ad blocked (set to not display).
+	//		Also check for the occurance of any Norton installed code to block popups or ads ( ie.)SymError ).
+	//		Only need to find 1 occurrance of any of the above to confirm ad blocking is used. 
+	//		No need to continue searching through other portions of the page.
+
+	var imgArray = document.images;
+	var iframeArray = document.getElementsByTagName("iframe");
+	var scriptArray = document.getElementsByTagName("script");
+	var isAdBlocked = 0;
+
+
+	if(window.SymError || window.SymWinOpen || window.SymRealWinOpen)
+	{
+		isAdBlocked=1;
+	}
+	if (!isAdBlocked)
+	{
+		for (var i=0; i<imgArray.length; i++)
+		{
+			if(imgArray[i].style.display == 'none')
+			{
+				isAdBlocked=1;
+				break;
+			}
+		}
+	}
+
+	if (!isAdBlocked)
+	{
+		for (var j=0; j<iframeArray.length; j++)
+		{
+			if (iframeArray[j].style.display == 'none')
+			{
+				isAdBlocked=1;
+				break;
+			}
+		}
+	}
+
+	if (!isAdBlocked)
+	{
+		for (var j=0; j<scriptArray.length; j++)
+		{
+			if (scriptArray[j].style.display == 'none')
+			{
+				isAdBlocked=1;
+				break;
+			}
+		}
+	}
+
+	if(isAdBlocked)
+	{
+		s.prop50="ad blocking";
+	}
+
+
+	/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+	var s_code=s.t();if(s_code)document.write(s_code) 
+	-->  
+	</script>
+	<script language="JavaScript"><!--
+	if(navigator.appVersion.indexOf('MSIE')>=0)document.write(unescape('%3C')+'\!-'+'-')
+	//--></script><!--/DO NOT REMOVE/-->
+	<!-- End SiteCatalyst code version: H.1. -->
+
+
+
+	<!-- START REVENUE SCIENCE PIXELLING CODE -->
+	<script src="http://js.revsci.net/gateway/gw.js?csid=B08725"></script>
+	<script>
+	DM_addEncToLoc("Site", (s.server));
+	DM_addEncToLoc("channel", (s.channel));
+	DM_addEncToLoc("keyword", (s.prop3));
+	DM_cat(s.hier1);
+	DM_tag();
+	</script>
+	<!-- END REVENUE SCIENCE PIXELLING CODE -->
+
+
+
+
+</body>
+</html>
