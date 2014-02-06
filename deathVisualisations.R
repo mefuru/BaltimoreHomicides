@@ -10,7 +10,7 @@ drawHisto = function(startYear = 2007, lastYear = 2014) {
   ## Download htmls into various text files
   homicides <- vector()
   for (i in 1:length(years)) {
-    # download.file(urls[i], paste(years[i],".txt", sep="")) # Downloads data afresh
+    download.file(urls[i], paste(years[i],".txt", sep="")) # Downloads data afresh
     homicides <- c(homicides, suppressWarnings(readLines(paste(years[i],".txt", sep=""))))
   }
   # Remove lines from homicides that contain [Cc]ause - these contain murder info
@@ -35,6 +35,7 @@ drawHisto = function(startYear = 2007, lastYear = 2014) {
   foo <- foo[!is.na(foo)]
   print(table(foo))
   qplot(zipCodes)
+  return(dFr)
   
   
 #   Homicides histograms by time period
